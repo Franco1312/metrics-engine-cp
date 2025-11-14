@@ -20,9 +20,7 @@ export class MetricDependencyExtractorService {
    */
   static extractSeriesCodes(metric: Metric): string[] {
     const seriesCodes = new Set<string>();
-
     this.extractSeriesFromExpression(metric.expressionJson, seriesCodes);
-
     return Array.from(seriesCodes);
   }
 

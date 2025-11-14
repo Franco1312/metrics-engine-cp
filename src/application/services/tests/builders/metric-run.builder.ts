@@ -60,6 +60,41 @@ export class MetricRunBuilder {
     return this;
   }
 
+  withStartedAt(date: Date): this {
+    this.data.startedAt = date;
+    return this;
+  }
+
+  withFinishedAt(date: Date): this {
+    this.data.finishedAt = date;
+    return this;
+  }
+
+  withLastHeartbeatAt(date: Date): this {
+    this.data.lastHeartbeatAt = date;
+    return this;
+  }
+
+  withError(error: string): this {
+    this.data.error = error;
+    return this;
+  }
+
+  withVersionTs(versionTs: string): this {
+    this.data.versionTs = versionTs;
+    return this;
+  }
+
+  withManifestPath(manifestPath: string): this {
+    this.data.manifestPath = manifestPath;
+    return this;
+  }
+
+  withRowCount(rowCount: number): this {
+    this.data.rowCount = rowCount;
+    return this;
+  }
+
   build(): MetricRun {
     return {
       id: this.data.id!,
