@@ -2,6 +2,7 @@ import { Provider } from "@nestjs/common";
 import { DATABASE_CLIENT_TOKEN } from "@/infrastructure/db/database.client";
 import { LOGGER_TOKEN } from "./logger.provider";
 import { REPOSITORY_TOKENS } from "./repositories.provider";
+import { EventLogRepository } from "@/domain/ports/event-log.repository";
 import { SNS_PUBLISHER_TOKEN } from "@/infrastructure/aws/sns-publisher";
 import { DatabaseClient } from "@/domain/interfaces/database-client.interface";
 import { Logger } from "@/domain/interfaces/logger.interface";
@@ -131,6 +132,7 @@ export const useCaseProviders: Provider[] = [
       APPLICATION_SERVICE_TOKENS.METRIC_DEPENDENCY_RESOLVER,
       APPLICATION_SERVICE_TOKENS.METRIC_RUN_ORCHESTRATOR,
       APPLICATION_SERVICE_TOKENS.PENDING_RUN,
+      REPOSITORY_TOKENS.EVENT_LOG,
       DATABASE_CLIENT_TOKEN,
       LOGGER_TOKEN,
     ],
@@ -139,6 +141,7 @@ export const useCaseProviders: Provider[] = [
       metricDependencyResolverService: MetricDependencyResolverService,
       metricRunOrchestratorService: MetricRunOrchestratorService,
       pendingRunService: PendingRunService,
+      eventLogRepository: EventLogRepository,
       databaseClient: DatabaseClient,
       logger: Logger,
     ): OnProjectionUpdateUseCase => {
@@ -147,6 +150,7 @@ export const useCaseProviders: Provider[] = [
         metricDependencyResolverService,
         metricRunOrchestratorService,
         pendingRunService,
+        eventLogRepository,
         databaseClient,
         logger,
       );

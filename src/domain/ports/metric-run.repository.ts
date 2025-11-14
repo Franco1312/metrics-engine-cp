@@ -26,4 +26,9 @@ export interface MetricRunRepository {
     status: MetricRunStatus,
     client?: TransactionClient,
   ): Promise<MetricRun>;
+  linkDatasetUpdates(
+    runId: string,
+    datasetUpdateIds: string[],
+    client?: TransactionClient,
+  ): Promise<void>;
 }

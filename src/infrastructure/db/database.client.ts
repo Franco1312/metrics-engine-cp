@@ -1,4 +1,5 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from "pg";
+import { config } from "dotenv";
 import {
   DatabaseClient,
   TransactionClient,
@@ -7,6 +8,9 @@ import { AppConfig } from "@/infrastructure/config/app.config";
 import { Logger } from "@/domain/interfaces/logger.interface";
 import { defaultLogger } from "@/infrastructure/shared/metrics-logger";
 import { LOG_EVENTS } from "@/domain/constants/log-events";
+
+// Cargar variables de entorno al importar el módulo
+config();
 
 class TransactionClientImpl implements TransactionClient {
   constructor(private readonly client: PoolClient) {}
@@ -19,27 +23,39 @@ class TransactionClientImpl implements TransactionClient {
   }
 
   release(): void {
-    // No hacer nada, el release se maneja en el método transaction
+    // El release se maneja en el método transaction
   }
 }
 
 export class PostgresDatabaseClient implements DatabaseClient {
-  private pool: Pool;
+  private readonly pool: Pool;
   private readonly logger: Logger;
 
-  constructor(config: AppConfig, logger: Logger = defaultLogger) {
+  constructor(appConfig: AppConfig, logger: Logger = defaultLogger) {
     this.logger = logger;
-    this.pool = new Pool({
-      host: config.database.host,
-      port: config.database.port,
-      database: config.database.name,
-      user: config.database.user,
-      password: config.database.password,
-      max: 20, // Máximo de conexiones en el pool
+    this.pool = this.createPool(appConfig);
+    this.setupPoolEventHandlers();
+  }
+
+  private createPool(appConfig: AppConfig): Pool {
+    const connectionConfig = {
+      host: process.env.DB_HOST || appConfig.database.host,
+      port: parseInt(
+        process.env.DB_PORT || String(appConfig.database.port),
+        10,
+      ),
+      database: process.env.DB_NAME || appConfig.database.name,
+      user: process.env.DB_USER || appConfig.database.user,
+      password: process.env.DB_PASSWORD || appConfig.database.password,
+      max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
-    });
+    };
 
+    return new Pool(connectionConfig);
+  }
+
+  private setupPoolEventHandlers(): void {
     this.pool.on("connect", () => {
       this.logger.info({
         event: LOG_EVENTS.DB_CONNECTION_ESTABLISHED,
@@ -77,8 +93,8 @@ export class PostgresDatabaseClient implements DatabaseClient {
       });
 
       const result = await callback(transactionClient);
-
       await client.query("COMMIT");
+
       this.logger.info({
         event: LOG_EVENTS.DB_TRANSACTION_COMMITTED,
         msg: "Transaction committed",

@@ -14,6 +14,7 @@ Sistema de orquestación de métricas reactivo basado en Clean Architecture, dis
 - [Ejecución](#ejecución)
 - [Testing](#testing)
 - [Base de Datos](#base-de-datos)
+- [Diseño de Base de Datos](./docs/database-design.md)
 - [Flujo de Trabajo](#flujo-de-trabajo)
 - [Scripts Disponibles](#scripts-disponibles)
 
@@ -240,29 +241,34 @@ src/
 
 ## 🗄️ Base de Datos
 
+Para una documentación completa del diseño de la base de datos, incluyendo todas las tablas, campos, relaciones y flujos de datos, consulta el **[Diseño de Base de Datos](./docs/database-design.md)**.
+
+### Esquema General
+
+El sistema utiliza las siguientes tablas principales:
+
+- **Catálogo**: `metrics`, `series`, `datasets`
+- **Dependencias**: `metric_dependencies`, `dataset_series`
+- **Ejecución**: `metric_runs`, `metric_run_pending_datasets`, `dataset_updates`
+- **Trazabilidad**: `run_dataset_updates`, `event_log`
+
 ### Migraciones
 
 Las migraciones se encuentran en `migrations/`:
 
 - `001_initial_schema.sql`: Schema inicial con todas las tablas
-
-### Tablas Principales
-
-- **metrics**: Definiciones de métricas
-- **series**: Catálogo de series disponibles
-- **datasets**: Catálogos de datasets
-- **dataset_series**: Relación entre datasets y series
-- **metric_runs**: Ejecuciones de métricas
-- **metric_run_pending_datasets**: Dependencias pendientes de runs
-- **dataset_updates**: Actualizaciones de datasets
-- **run_dataset_updates**: Relación entre runs y actualizaciones
-- **event_log**: Log de eventos del sistema
+- `002_insert_bcra_infomondia_dataset.sql`: Dataset inicial BCRA
+- `003_insert_bcra_metrics.sql`: Métricas iniciales BCRA
+- `004_clean_and_seed.sql`: Script de limpieza y re-seed
 
 ### Aplicar Migraciones
 
 ```bash
-# Conectarse a PostgreSQL y ejecutar
-psql -U postgres -d metrics_engine -f migrations/001_initial_schema.sql
+# Usando el script de migración
+npm run migrate:up
+
+# Limpiar y re-seed la base de datos
+npm run migrate:clean-seed
 ```
 
 ## 🔄 Flujo de Trabajo

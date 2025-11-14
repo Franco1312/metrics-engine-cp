@@ -14,12 +14,46 @@ interface MetricRow {
 }
 
 export class MetricMapper {
+  /**
+   * Convierte un objeto JSON de snake_case a camelCase
+   * Específicamente convierte series_code -> seriesCode recursivamente
+   */
+  private static normalizeExpressionJson(json: unknown): ExpressionJson {
+    if (!json || typeof json !== "object") {
+      return json as ExpressionJson;
+    }
+
+    const convertSeriesCode = (obj: any): any => {
+      if (obj === null || typeof obj !== "object") {
+        return obj;
+      }
+
+      if (Array.isArray(obj)) {
+        return obj.map(convertSeriesCode);
+      }
+
+      const converted: any = {};
+
+      for (const [key, value] of Object.entries(obj)) {
+        if (key === "series_code") {
+          converted.seriesCode = convertSeriesCode(value);
+        } else {
+          converted[key] = convertSeriesCode(value);
+        }
+      }
+
+      return converted;
+    };
+
+    return convertSeriesCode(json) as ExpressionJson;
+  }
+
   static toDomain(row: MetricRow): Metric {
     return {
       id: row.id,
       code: row.code,
       expressionType: row.expression_type as Metric["expressionType"],
-      expressionJson: row.expression_json as ExpressionJson,
+      expressionJson: this.normalizeExpressionJson(row.expression_json),
       frequency: row.frequency ?? undefined,
       unit: row.unit ?? undefined,
       description: row.description ?? undefined,

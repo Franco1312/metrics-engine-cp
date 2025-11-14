@@ -231,4 +231,21 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
   ): Promise<MetricRun> {
     return this.update(id, { status }, client);
   }
+
+  async linkDatasetUpdates(
+    runId: string,
+    datasetUpdateIds: string[],
+    client?: TransactionClient,
+  ): Promise<void> {
+    const dbClient = this.getClient(client);
+
+    for (const updateId of datasetUpdateIds) {
+      await dbClient.query(
+        `INSERT INTO run_dataset_updates (run_id, dataset_update_id)
+         VALUES ($1, $2)
+         ON CONFLICT (run_id, dataset_update_id) DO NOTHING`,
+        [runId, updateId],
+      );
+    }
+  }
 }

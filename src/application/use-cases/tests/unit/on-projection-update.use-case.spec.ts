@@ -7,6 +7,7 @@ import {
   DatabaseClient,
   TransactionClient,
 } from "@/domain/interfaces/database-client.interface";
+import { EventLogRepository } from "@/domain/ports/event-log.repository";
 import { Logger } from "@/domain/interfaces/logger.interface";
 import { ProjectionUpdateEventBuilder } from "@/application/services/tests/builders/projection-update-event.builder";
 import { DatasetUpdateBuilder } from "@/domain/services/tests/builders/dataset-update.builder";
@@ -21,6 +22,7 @@ describe("OnProjectionUpdateUseCase", () => {
   let mockMetricDependencyResolverService: jest.Mocked<MetricDependencyResolverService>;
   let mockMetricRunOrchestratorService: jest.Mocked<MetricRunOrchestratorService>;
   let mockPendingRunService: jest.Mocked<PendingRunService>;
+  let mockEventLogRepository: jest.Mocked<EventLogRepository>;
   let mockDatabaseClient: jest.Mocked<DatabaseClient>;
   let mockLogger: jest.Mocked<Logger>;
   let mockTransactionClient: jest.Mocked<TransactionClient>;
@@ -49,6 +51,12 @@ describe("OnProjectionUpdateUseCase", () => {
       updatePendingRunsForDataset: jest.fn(),
     } as any;
 
+    mockEventLogRepository = {
+      create: jest.fn(),
+      findByEventKey: jest.fn(),
+      markAsProcessed: jest.fn(),
+    } as any;
+
     mockDatabaseClient = {
       transaction: jest.fn((callback) => callback(mockTransactionClient)),
       query: jest.fn(),
@@ -66,6 +74,7 @@ describe("OnProjectionUpdateUseCase", () => {
       mockMetricDependencyResolverService,
       mockMetricRunOrchestratorService,
       mockPendingRunService,
+      mockEventLogRepository,
       mockDatabaseClient,
       mockLogger,
     );
@@ -108,6 +117,15 @@ describe("OnProjectionUpdateUseCase", () => {
         .withStatus(METRIC_RUN_STATUS.QUEUED)
         .build();
 
+      mockEventLogRepository.findByEventKey.mockResolvedValue(null);
+      mockEventLogRepository.create.mockResolvedValue({
+        eventKey: "dataset-123:path/to/manifest.json",
+        eventType: "projection_update",
+        eventPayload: {},
+        createdAt: new Date(),
+      });
+      mockEventLogRepository.markAsProcessed.mockResolvedValue();
+
       mockDatasetUpdateService.persistUpdate.mockResolvedValue(datasetUpdate);
       mockMetricDependencyResolverService.findMetricsForDataset.mockResolvedValue(
         [metric1, metric2],
@@ -149,10 +167,10 @@ describe("OnProjectionUpdateUseCase", () => {
       expect(mockLogger.info).toHaveBeenCalledWith({
         event: LOG_EVENTS.ON_PROJECTION_UPDATE_STARTED,
         msg: "Processing projection update event",
-        data: {
+        data: expect.objectContaining({
           datasetId: "dataset-123",
           bucket: event.bucket,
-        },
+        }),
       });
       expect(mockLogger.info).toHaveBeenCalledWith({
         event: LOG_EVENTS.ON_PROJECTION_UPDATE_COMPLETED,
@@ -171,6 +189,15 @@ describe("OnProjectionUpdateUseCase", () => {
       const event = new ProjectionUpdateEventBuilder().build();
       const datasetUpdate = new DatasetUpdateBuilder().build();
 
+      mockEventLogRepository.findByEventKey.mockResolvedValue(null);
+      mockEventLogRepository.create.mockResolvedValue({
+        eventKey: "dataset-123:path/to/manifest.json",
+        eventType: "projection_update",
+        eventPayload: {},
+        createdAt: new Date(),
+      });
+      mockEventLogRepository.markAsProcessed.mockResolvedValue();
+
       mockDatasetUpdateService.persistUpdate.mockResolvedValue(datasetUpdate);
       mockMetricDependencyResolverService.findMetricsForDataset.mockResolvedValue(
         [],
@@ -182,13 +209,29 @@ describe("OnProjectionUpdateUseCase", () => {
       expect(
         mockMetricRunOrchestratorService.createRunForMetric,
       ).not.toHaveBeenCalled();
-      expect(mockLogger.info).toHaveBeenCalledWith({
-        event: LOG_EVENTS.ON_PROJECTION_UPDATE_COMPLETED,
-        msg: "No dependent metrics found for dataset",
-        data: {
-          datasetId: event.dataset_id,
-        },
-      });
+
+      // Verificar que se llamó ON_PROJECTION_UPDATE_STARTED
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: LOG_EVENTS.ON_PROJECTION_UPDATE_STARTED,
+          msg: "Processing projection update event",
+          data: expect.objectContaining({
+            datasetId: event.dataset_id,
+          }),
+        }),
+      );
+
+      // Verificar que se llamó ON_PROJECTION_UPDATE_COMPLETED
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: LOG_EVENTS.ON_PROJECTION_UPDATE_COMPLETED,
+          msg: "Projection update processed successfully",
+          data: expect.objectContaining({
+            datasetId: event.dataset_id,
+            updateId: datasetUpdate.id,
+          }),
+        }),
+      );
     });
 
     it("should emit ready runs that are still pending", async () => {
@@ -211,6 +254,15 @@ describe("OnProjectionUpdateUseCase", () => {
         .withId("run-2")
         .withStatus(METRIC_RUN_STATUS.PENDING_DEPENDENCIES)
         .build();
+
+      mockEventLogRepository.findByEventKey.mockResolvedValue(null);
+      mockEventLogRepository.create.mockResolvedValue({
+        eventKey: "dataset-123:path/to/manifest.json",
+        eventType: "projection_update",
+        eventPayload: {},
+        createdAt: new Date(),
+      });
+      mockEventLogRepository.markAsProcessed.mockResolvedValue();
 
       mockDatasetUpdateService.persistUpdate.mockResolvedValue(datasetUpdate);
       mockMetricDependencyResolverService.findMetricsForDataset.mockResolvedValue(

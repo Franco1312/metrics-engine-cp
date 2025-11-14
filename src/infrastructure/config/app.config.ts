@@ -12,8 +12,11 @@ export interface AppConfig {
     secretAccessKey?: string;
   };
   sns: {
-    topicArn: string;
-    isFifo: boolean;
+    metricRunRequest: {
+      topic: string;
+      enabled: boolean;
+      region: string;
+    };
   };
   sqs: {
     projectionUpdate: {
@@ -60,29 +63,42 @@ export const loadConfig = (): AppConfig => {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
     sns: {
-      topicArn: process.env.SNS_TOPIC_ARN ?? "",
-      isFifo: process.env.SNS_TOPIC_IS_FIFO === "true",
+      metricRunRequest: {
+        topic:
+          process.env.SNS_METRIC_RUN_REQUEST_TOPIC ??
+          process.env.SNS_TOPIC_ARN ??
+          "",
+        enabled: process.env.SNS_METRIC_RUN_REQUEST_ENABLED === "true",
+        region:
+          process.env.SNS_METRIC_RUN_REQUEST_REGION ??
+          process.env.AWS_REGION ??
+          "us-east-1",
+      },
     },
     sqs: {
       projectionUpdate: {
-        queueUrl: process.env.SQS_PROJECTION_UPDATE_QUEUE_URL ?? "",
-        enabled: process.env.SQS_PROJECTION_UPDATE_ENABLED === "true",
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/706341500093/metrics-engine-cp-projection-updates-consumer.fifo",
+        enabled: true,
       },
       metricRunStarted: {
-        queueUrl: process.env.SQS_METRIC_RUN_STARTED_QUEUE_URL ?? "",
-        enabled: process.env.SQS_METRIC_RUN_STARTED_ENABLED === "true",
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/706341500093/metric-run-started-consumer.fifo",
+        enabled: true,
       },
       metricRunHeartbeat: {
-        queueUrl: process.env.SQS_METRIC_RUN_HEARTBEAT_QUEUE_URL ?? "",
-        enabled: process.env.SQS_METRIC_RUN_HEARTBEAT_ENABLED === "true",
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/706341500093/metric-run-hearthbeat-consumer.fifo",
+        enabled: true,
       },
       metricRunCompleted: {
-        queueUrl: process.env.SQS_METRIC_RUN_COMPLETED_QUEUE_URL ?? "",
-        enabled: process.env.SQS_METRIC_RUN_COMPLETED_ENABLED === "true",
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/706341500093/metric-run-completed-consumer.fifo",
+        enabled: true,
       },
     },
     s3: {
-      bucket: process.env.S3_BUCKET ?? "",
+      bucket: "ingestor-datasets",
     },
     logging: {
       level: process.env.LOG_LEVEL ?? "info",

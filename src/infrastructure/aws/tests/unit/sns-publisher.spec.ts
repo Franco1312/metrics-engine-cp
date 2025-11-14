@@ -15,8 +15,11 @@ describe("AwsSnsPublisher", () => {
     send: jest.Mock<Promise<{ MessageId?: string }>, [command: PublishCommand]>;
   };
   let config: ReturnType<AppConfigBuilder["build"]>;
+  let publishCommandInstances: Array<{ input: any }>;
 
   beforeEach(() => {
+    publishCommandInstances = [];
+
     mockLogger = {
       info: jest.fn(),
       error: jest.fn(),
@@ -34,12 +37,21 @@ describe("AwsSnsPublisher", () => {
       () => mockSnsClient as unknown as SNSClient,
     );
 
+    (
+      PublishCommand as jest.MockedClass<typeof PublishCommand>
+    ).mockImplementation((input: any) => {
+      const instance = { input } as PublishCommand;
+      publishCommandInstances.push(instance);
+      return instance;
+    });
+
     config = new AppConfigBuilder().build();
     publisher = new AwsSnsPublisher(config, mockLogger);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    publishCommandInstances = [];
   });
 
   describe("publishMetricRunRequest", () => {
@@ -52,8 +64,6 @@ describe("AwsSnsPublisher", () => {
       await publisher.publishMetricRunRequest(event);
 
       expect(mockSnsClient.send).toHaveBeenCalledTimes(1);
-      const command = mockSnsClient.send.mock.calls[0]?.[0] as PublishCommand;
-      expect(command).toBeInstanceOf(PublishCommand);
 
       expect(mockLogger.info).toHaveBeenCalledWith({
         event: LOG_EVENTS.SNS_MESSAGE_PUBLISHED,
@@ -66,8 +76,10 @@ describe("AwsSnsPublisher", () => {
       });
     });
 
-    it("should include MessageGroupId and MessageDeduplicationId for FIFO topics", async () => {
-      const fifoConfig = new AppConfigBuilder().withSnsFifo(true).build();
+    it("should include MessageGroupId and MessageDeduplicationId when event has them", async () => {
+      const fifoConfig = new AppConfigBuilder()
+        .withSnsTopicArn("arn:aws:sns:us-east-1:123456789012:test-topic.fifo")
+        .build();
       const fifoPublisher = new AwsSnsPublisher(fifoConfig, mockLogger);
 
       const event = new MetricRunRequestEventBuilder()
@@ -79,23 +91,34 @@ describe("AwsSnsPublisher", () => {
 
       await fifoPublisher.publishMetricRunRequest(event);
 
-      const command = mockSnsClient.send.mock.calls[0]?.[0] as PublishCommand;
-      expect(command).toBeInstanceOf(PublishCommand);
+      expect(mockSnsClient.send).toHaveBeenCalledTimes(1);
+      const commandInput = publishCommandInstances[0]?.input;
+      expect(commandInput).toBeDefined();
+      expect(commandInput.TopicArn).toBe(
+        "arn:aws:sns:us-east-1:123456789012:test-topic.fifo",
+      );
+      expect(commandInput.MessageGroupId).toBe("group-123");
+      expect(commandInput.MessageDeduplicationId).toBe("dedup-123");
     });
 
-    it("should handle missing MessageGroupId and MessageDeduplicationId for FIFO topics", async () => {
-      const fifoConfig = new AppConfigBuilder().withSnsFifo(true).build();
-      const fifoPublisher = new AwsSnsPublisher(fifoConfig, mockLogger);
+    it("should publish without MessageGroupId and MessageDeduplicationId when event doesn't have them", async () => {
+      const config = new AppConfigBuilder()
+        .withSnsTopicArn("arn:aws:sns:us-east-1:123456789012:test-topic")
+        .build();
+      const publisher = new AwsSnsPublisher(config, mockLogger);
 
       const event = new MetricRunRequestEventBuilder().build();
       const mockResponse = { MessageId: "msg-123" };
 
       mockSnsClient.send.mockResolvedValue(mockResponse);
 
-      await fifoPublisher.publishMetricRunRequest(event);
+      await publisher.publishMetricRunRequest(event);
 
-      const command = mockSnsClient.send.mock.calls[0]?.[0] as PublishCommand;
-      expect(command).toBeInstanceOf(PublishCommand);
+      expect(mockSnsClient.send).toHaveBeenCalledTimes(1);
+      const commandInput = publishCommandInstances[0]?.input;
+      expect(commandInput).toBeDefined();
+      expect(commandInput.MessageGroupId).toBeUndefined();
+      expect(commandInput.MessageDeduplicationId).toBeUndefined();
     });
 
     it("should log error and throw when SNS publish fails", async () => {

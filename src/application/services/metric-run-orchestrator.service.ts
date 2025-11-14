@@ -192,6 +192,13 @@ export class MetricRunOrchestratorService {
       client,
     );
 
+    const datasetUpdateIds = datasetUpdates.map((update) => update.id);
+    await this.metricRunRepository.linkDatasetUpdates(
+      run.id,
+      datasetUpdateIds,
+      client,
+    );
+
     const seriesCodes =
       MetricDependencyExtractorService.extractSeriesCodes(metric);
     const inputs = await this.buildRunInputs(
@@ -210,6 +217,7 @@ export class MetricRunOrchestratorService {
       data: {
         runId: run.id,
         metricCode: metric.code,
+        datasetUpdatesCount: datasetUpdates.length,
       },
     });
   }
@@ -297,7 +305,7 @@ export class MetricRunOrchestratorService {
   }
 
   /**
-   * Construye el evento de solicitud de run de métrica
+   * Construye el evento de solicitud de run de métrica con todos los atributos necesarios
    */
   private buildMetricRunRequestEvent(
     run: MetricRun,
@@ -316,6 +324,8 @@ export class MetricRunOrchestratorService {
       output: {
         basePath: `s3://bucket/metrics/${metric.code}/`,
       },
+      messageGroupId: metric.code,
+      messageDeduplicationId: run.id,
     };
   }
 }

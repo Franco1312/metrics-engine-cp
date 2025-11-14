@@ -25,8 +25,11 @@ export class AppConfigBuilder {
       secretAccessKey: "test-secret-key",
     },
     sns: {
-      topicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
-      isFifo: false,
+      metricRunRequest: {
+        topic: "arn:aws:sns:us-east-1:123456789012:test-topic",
+        enabled: true,
+        region: "us-east-1",
+      },
     },
     sqs: {
       projectionUpdate: {
@@ -86,12 +89,28 @@ export class AppConfigBuilder {
   }
 
   withSnsTopicArn(topicArn: string): this {
-    this.data.sns = { ...this.data.sns!, topicArn };
+    this.data.sns = {
+      ...this.data.sns!,
+      metricRunRequest: {
+        ...this.data.sns!.metricRunRequest,
+        topic: topicArn,
+      },
+    };
     return this;
   }
 
-  withSnsFifo(isFifo: boolean): this {
-    this.data.sns = { ...this.data.sns!, isFifo };
+  withSnsMetricRunRequest(config: {
+    topic?: string;
+    enabled?: boolean;
+    region?: string;
+  }): this {
+    this.data.sns = {
+      ...this.data.sns!,
+      metricRunRequest: {
+        ...this.data.sns!.metricRunRequest,
+        ...config,
+      },
+    };
     return this;
   }
 

@@ -11,6 +11,9 @@ import { Logger } from "@/domain/interfaces/logger.interface";
 import { LOG_EVENTS } from "@/domain/constants/log-events";
 import { METRIC_RUN_STATUS } from "@/domain/constants/metric-status";
 import { MetricRun } from "@/domain/entities/metric-run.entity";
+import { Metric } from "@/domain/entities/metric.entity";
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
+import { EventLogRepository } from "@/domain/ports/event-log.repository";
 
 /**
  * Use case para procesar eventos de actualización de proyecciones
@@ -21,6 +24,7 @@ export class OnProjectionUpdateUseCase {
     private readonly metricDependencyResolverService: MetricDependencyResolverService,
     private readonly metricRunOrchestratorService: MetricRunOrchestratorService,
     private readonly pendingRunService: PendingRunService,
+    private readonly eventLogRepository: EventLogRepository,
     private readonly databaseClient: DatabaseClient,
     private readonly logger: Logger,
   ) {}
@@ -39,31 +43,24 @@ export class OnProjectionUpdateUseCase {
 
   /**
    * Procesa la lógica de actualización de proyección dentro de una transacción
-   *
-   * @param event - El evento de actualización de proyección
-   * @param client - Cliente de transacción
-   * @returns Array de runs creados o emitidos
    */
   private async processProjectionUpdate(
     event: ProjectionUpdateEvent,
     client: TransactionClient,
   ): Promise<MetricRun[]> {
-    this.logger.info({
-      event: LOG_EVENTS.ON_PROJECTION_UPDATE_STARTED,
-      msg: "Processing projection update event",
-      data: {
-        datasetId: event.dataset_id,
-        bucket: event.bucket,
-      },
-    });
+    const eventKey = this.buildEventKey(event);
 
-    // 1. Persistir la actualización del dataset
+    if (await this.isAlreadyProcessed(eventKey, client)) {
+      return [];
+    }
+
+    await this.registerEvent(event, eventKey, client);
+
     const datasetUpdate = await this.datasetUpdateService.persistUpdate(
       event,
       client,
     );
 
-    // 2. Encontrar métricas que dependen de este dataset
     const dependentMetrics =
       await this.metricDependencyResolverService.findMetricsForDataset(
         event.dataset_id,
@@ -71,20 +68,104 @@ export class OnProjectionUpdateUseCase {
       );
 
     if (dependentMetrics.length === 0) {
-      this.logger.info({
-        event: LOG_EVENTS.ON_PROJECTION_UPDATE_COMPLETED,
-        msg: "No dependent metrics found for dataset",
-        data: {
-          datasetId: event.dataset_id,
-        },
-      });
+      await this.completeEventProcessing(eventKey, client);
+      this.logEventCompletion(event, datasetUpdate, [], [], []);
       return [];
     }
 
-    // 3. Para cada métrica dependiente, crear o actualizar runs
-    const createdRuns: MetricRun[] = [];
+    const createdRuns = await this.createRunsForMetrics(
+      dependentMetrics,
+      event.dataset_id,
+      datasetUpdate,
+      client,
+    );
 
-    for (const metric of dependentMetrics) {
+    const readyRuns = await this.pendingRunService.updatePendingRunsForDataset(
+      event.dataset_id,
+      datasetUpdate.id,
+      datasetUpdate.createdAt,
+      client,
+    );
+
+    await this.emitReadyRuns(readyRuns, client);
+
+    await this.completeEventProcessing(eventKey, client);
+
+    this.logEventCompletion(
+      event,
+      datasetUpdate,
+      dependentMetrics,
+      createdRuns,
+      readyRuns,
+    );
+
+    return [...createdRuns, ...readyRuns];
+  }
+
+  private buildEventKey(event: ProjectionUpdateEvent): string {
+    return `${event.dataset_id}:${event.version_manifest_path}`;
+  }
+
+  private async isAlreadyProcessed(
+    eventKey: string,
+    client: TransactionClient,
+  ): Promise<boolean> {
+    const existingEventLog = await this.eventLogRepository.findByEventKey(
+      eventKey,
+      client,
+    );
+
+    if (existingEventLog?.processedAt) {
+      this.logger.info({
+        event: LOG_EVENTS.ON_PROJECTION_UPDATE,
+        msg: "Projection update event already processed, skipping",
+        data: {
+          eventKey,
+          processedAt: existingEventLog.processedAt,
+        },
+      });
+      return true;
+    }
+
+    return false;
+  }
+
+  private async registerEvent(
+    event: ProjectionUpdateEvent,
+    eventKey: string,
+    client: TransactionClient,
+  ): Promise<void> {
+    await this.eventLogRepository.create(
+      {
+        eventKey,
+        eventType: "projection_update",
+        eventPayload: event as unknown as Record<string, unknown>,
+        processedAt: undefined,
+        runId: undefined,
+      },
+      client,
+    );
+
+    this.logger.info({
+      event: LOG_EVENTS.ON_PROJECTION_UPDATE_STARTED,
+      msg: "Processing projection update event",
+      data: {
+        datasetId: event.dataset_id,
+        bucket: event.bucket,
+        eventKey,
+      },
+    });
+  }
+
+  private async createRunsForMetrics(
+    metrics: Metric[],
+    currentDatasetId: string,
+    datasetUpdate: DatasetUpdate,
+    client: TransactionClient,
+  ): Promise<MetricRun[]> {
+    const runs: MetricRun[] = [];
+
+    for (const metric of metrics) {
       const requiredDatasetIds =
         await this.metricDependencyResolverService.resolveRequiredDatasets(
           metric.id,
@@ -93,30 +174,43 @@ export class OnProjectionUpdateUseCase {
 
       const run = await this.metricRunOrchestratorService.createRunForMetric(
         metric,
-        event.dataset_id,
+        currentDatasetId,
         datasetUpdate,
         requiredDatasetIds,
         client,
       );
 
-      createdRuns.push(run);
+      runs.push(run);
     }
 
-    // 4. Actualizar runs pendientes y emitir los que estén listos
-    const readyRuns = await this.pendingRunService.updatePendingRunsForDataset(
-      event.dataset_id,
-      datasetUpdate.id,
-      datasetUpdate.createdAt,
-      client,
-    );
+    return runs;
+  }
 
-    // 5. Emitir runs que estén listos pero aún no emitidos
-    for (const run of readyRuns) {
+  private async emitReadyRuns(
+    runs: MetricRun[],
+    client: TransactionClient,
+  ): Promise<void> {
+    for (const run of runs) {
       if (run.status === METRIC_RUN_STATUS.PENDING_DEPENDENCIES) {
         await this.metricRunOrchestratorService.emitPendingRun(run.id, client);
       }
     }
+  }
 
+  private async completeEventProcessing(
+    eventKey: string,
+    client: TransactionClient,
+  ): Promise<void> {
+    await this.eventLogRepository.markAsProcessed(eventKey, undefined, client);
+  }
+
+  private logEventCompletion(
+    event: ProjectionUpdateEvent,
+    datasetUpdate: DatasetUpdate,
+    dependentMetrics: Metric[],
+    createdRuns: MetricRun[],
+    readyRuns: MetricRun[],
+  ): void {
     this.logger.info({
       event: LOG_EVENTS.ON_PROJECTION_UPDATE_COMPLETED,
       msg: "Projection update processed successfully",
@@ -128,7 +222,5 @@ export class OnProjectionUpdateUseCase {
         readyRunsCount: readyRuns.length,
       },
     });
-
-    return [...createdRuns, ...readyRuns];
   }
 }

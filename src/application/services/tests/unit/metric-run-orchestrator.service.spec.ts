@@ -31,6 +31,7 @@ describe("MetricRunOrchestratorService", () => {
       create: jest.fn(),
       findById: jest.fn(),
       updateStatus: jest.fn(),
+      linkDatasetUpdates: jest.fn(),
     } as any;
 
     mockMetricRepository = {

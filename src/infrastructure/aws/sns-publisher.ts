@@ -7,13 +7,13 @@ import { AppConfig } from "@/infrastructure/config/app.config";
 
 export class AwsSnsPublisher implements SNSPublisher {
   private readonly snsClient: SNSClient;
-  private readonly topicArn: string;
-  private readonly isFifo: boolean;
+  private readonly config: AppConfig;
+  private readonly logger: Logger;
 
-  constructor(
-    config: AppConfig,
-    private readonly logger: Logger,
-  ) {
+  constructor(config: AppConfig, logger: Logger) {
+    this.config = config;
+    this.logger = logger;
+
     this.snsClient = new SNSClient({
       region: config.aws.region,
       credentials:
@@ -24,24 +24,48 @@ export class AwsSnsPublisher implements SNSPublisher {
             }
           : undefined,
     });
-    this.topicArn = config.sns.topicArn;
-    this.isFifo = config.sns.isFifo;
   }
 
   async publishMetricRunRequest(event: MetricRunRequestEvent): Promise<void> {
+    const snsConfig = this.config.sns.metricRunRequest;
+
+    if (!snsConfig.enabled) {
+      this.logger.info({
+        event: LOG_EVENTS.SNS_MESSAGE_PUBLISHED,
+        msg: "SNS publishing is disabled for metricRunRequest, skipping",
+        data: {
+          runId: event.runId,
+          metricCode: event.metricCode,
+        },
+      });
+      return;
+    }
+
     try {
+      const snsClient =
+        snsConfig.region !== this.config.aws.region
+          ? new SNSClient({
+              region: snsConfig.region,
+              credentials:
+                this.config.aws.accessKeyId && this.config.aws.secretAccessKey
+                  ? {
+                      accessKeyId: this.config.aws.accessKeyId,
+                      secretAccessKey: this.config.aws.secretAccessKey,
+                    }
+                  : undefined,
+            })
+          : this.snsClient;
+
       const messageBody = JSON.stringify(event);
 
       const command = new PublishCommand({
-        TopicArn: this.topicArn,
+        TopicArn: snsConfig.topic,
         Message: messageBody,
-        MessageGroupId: this.isFifo ? event.messageGroupId : undefined,
-        MessageDeduplicationId: this.isFifo
-          ? event.messageDeduplicationId
-          : undefined,
+        MessageGroupId: event.messageGroupId,
+        MessageDeduplicationId: event.messageDeduplicationId,
       });
 
-      const response = await this.snsClient.send(command);
+      const response = await snsClient.send(command);
 
       this.logger.info({
         event: LOG_EVENTS.SNS_MESSAGE_PUBLISHED,
