@@ -29,14 +29,26 @@ export class AppConfigBuilder {
       isFifo: false,
     },
     sqs: {
-      projectionUpdateQueueUrl:
-        "https://sqs.us-east-1.amazonaws.com/123456789/projection-update",
-      metricRunStartedQueueUrl:
-        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-started",
-      metricRunHeartbeatQueueUrl:
-        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-heartbeat",
-      metricRunCompletedQueueUrl:
-        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-completed",
+      projectionUpdate: {
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/123456789/projection-update",
+        enabled: true,
+      },
+      metricRunStarted: {
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-started",
+        enabled: true,
+      },
+      metricRunHeartbeat: {
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-heartbeat",
+        enabled: true,
+      },
+      metricRunCompleted: {
+        queueUrl:
+          "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-completed",
+        enabled: true,
+      },
     },
     s3: {
       bucket: "test-bucket",

@@ -28,11 +28,14 @@ describe("createProjectionUpdateConsumer", () => {
         secretAccessKey: "test-secret",
       },
       sqs: {
-        projectionUpdateQueueUrl:
-          "https://sqs.us-east-1.amazonaws.com/123456789/projection-update",
-        metricRunStartedQueueUrl: "",
-        metricRunHeartbeatQueueUrl: "",
-        metricRunCompletedQueueUrl: "",
+        projectionUpdate: {
+          queueUrl:
+            "https://sqs.us-east-1.amazonaws.com/123456789/projection-update",
+          enabled: true,
+        },
+        metricRunStarted: { queueUrl: "", enabled: false },
+        metricRunHeartbeat: { queueUrl: "", enabled: false },
+        metricRunCompleted: { queueUrl: "", enabled: false },
       },
     } as AppConfig;
 
@@ -62,7 +65,7 @@ describe("createProjectionUpdateConsumer", () => {
     expect(Consumer.create).toHaveBeenCalledWith(
       expect.objectContaining({
         sqs: expect.any(Object),
-        queueUrl: mockConfig.sqs.projectionUpdateQueueUrl,
+        queueUrl: mockConfig.sqs.projectionUpdate.queueUrl,
         batchSize: 10,
         suppressFifoWarning: true,
       }),

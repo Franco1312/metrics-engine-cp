@@ -26,11 +26,14 @@ describe("createMetricRunStartedConsumer", () => {
         secretAccessKey: "test-secret",
       },
       sqs: {
-        projectionUpdateQueueUrl: "",
-        metricRunStartedQueueUrl:
-          "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-started",
-        metricRunHeartbeatQueueUrl: "",
-        metricRunCompletedQueueUrl: "",
+        projectionUpdate: { queueUrl: "", enabled: false },
+        metricRunStarted: {
+          queueUrl:
+            "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-started",
+          enabled: true,
+        },
+        metricRunHeartbeat: { queueUrl: "", enabled: false },
+        metricRunCompleted: { queueUrl: "", enabled: false },
       },
     } as AppConfig;
 

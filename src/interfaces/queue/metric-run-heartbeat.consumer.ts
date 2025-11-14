@@ -64,8 +64,8 @@ export function createMetricRunHeartbeatConsumer(
   logger: Logger,
 ): Consumer {
   const sqsConfig: SqsConsumerConfig = {
-    queueUrl: config.sqs.metricRunHeartbeatQueueUrl,
-    enabled: !!config.sqs.metricRunHeartbeatQueueUrl,
+    queueUrl: config.sqs.metricRunHeartbeat.queueUrl,
+    enabled: config.sqs.metricRunHeartbeat.enabled,
     eventName: "METRIC_RUN_HEARTBEAT",
   };
 

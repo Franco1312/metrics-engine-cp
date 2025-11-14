@@ -67,8 +67,8 @@ export function createProjectionUpdateConsumer(
   logger: Logger,
 ): Consumer {
   const sqsConfig: SqsConsumerConfig = {
-    queueUrl: config.sqs.projectionUpdateQueueUrl,
-    enabled: !!config.sqs.projectionUpdateQueueUrl,
+    queueUrl: config.sqs.projectionUpdate.queueUrl,
+    enabled: config.sqs.projectionUpdate.enabled,
     eventName: "PROJECTION_UPDATE",
   };
 

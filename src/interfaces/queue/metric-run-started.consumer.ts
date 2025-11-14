@@ -57,8 +57,8 @@ export function createMetricRunStartedConsumer(
   logger: Logger,
 ): Consumer {
   const sqsConfig: SqsConsumerConfig = {
-    queueUrl: config.sqs.metricRunStartedQueueUrl,
-    enabled: !!config.sqs.metricRunStartedQueueUrl,
+    queueUrl: config.sqs.metricRunStarted.queueUrl,
+    enabled: config.sqs.metricRunStarted.enabled,
     eventName: "METRIC_RUN_STARTED",
   };
 

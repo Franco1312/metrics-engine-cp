@@ -78,8 +78,8 @@ export function createMetricRunCompletedConsumer(
   logger: Logger,
 ): Consumer {
   const sqsConfig: SqsConsumerConfig = {
-    queueUrl: config.sqs.metricRunCompletedQueueUrl,
-    enabled: !!config.sqs.metricRunCompletedQueueUrl,
+    queueUrl: config.sqs.metricRunCompleted.queueUrl,
+    enabled: config.sqs.metricRunCompleted.enabled,
     eventName: "METRIC_RUN_COMPLETED",
   };
 
