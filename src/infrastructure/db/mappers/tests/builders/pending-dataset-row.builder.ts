@@ -10,13 +10,13 @@ interface PendingDatasetRowData {
 
 export class PendingDatasetRowBuilder {
   private data: PendingDatasetRowData = {
-    run_id: 'run-123',
-    dataset_id: 'dataset-123',
+    run_id: "run-123",
+    dataset_id: "dataset-123",
     required_days: 7,
     received_update_id: null,
     received: false,
     received_at: null,
-    created_at: new Date('2024-01-01T00:00:00Z'),
+    created_at: new Date("2024-01-01T00:00:00Z"),
   };
 
   withRunId(runId: string): this {
@@ -73,4 +73,3 @@ export class PendingDatasetRowBuilder {
     };
   }
 }
-

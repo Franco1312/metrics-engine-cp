@@ -1,8 +1,12 @@
-import { MetricRunRepository } from '@/domain/ports/metric-run.repository';
-import { MetricRun } from '@/domain/entities/metric-run.entity';
-import { MetricRunStatus } from '@/domain/constants/metric-status';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
-import { MetricRunMapper } from '@/infrastructure/db/mappers/metric-run.mapper';
+import { MetricRunRepository } from "@/domain/ports/metric-run.repository";
+import { MetricRun } from "@/domain/entities/metric-run.entity";
+import { MetricRunStatus } from "@/domain/constants/metric-status";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
+import { MetricRunMapper } from "@/infrastructure/db/mappers/metric-run.mapper";
 
 export class PostgresMetricRunRepository implements MetricRunRepository {
   constructor(private readonly dbClient: DatabaseClient) {}
@@ -12,7 +16,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
   }
 
   async create(
-    run: Omit<MetricRun, 'id' | 'requestedAt'>,
+    run: Omit<MetricRun, "id" | "requestedAt">,
     client?: TransactionClient,
   ): Promise<MetricRun> {
     const dbClient = this.getClient(client);
@@ -52,7 +56,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
     );
 
     if (!result.rows[0]) {
-      throw new Error('Failed to create metric run');
+      throw new Error("Failed to create metric run");
     }
     return MetricRunMapper.toDomain(result.rows[0]);
   }
@@ -75,7 +79,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
       version_ts: string | null;
       manifest_path: string | null;
       row_count: number | null;
-    }>('SELECT * FROM metric_runs WHERE id = $1', [id]);
+    }>("SELECT * FROM metric_runs WHERE id = $1", [id]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -103,7 +107,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
       manifest_path: string | null;
       row_count: number | null;
     }>(
-      'SELECT * FROM metric_runs WHERE metric_id = $1 ORDER BY requested_at DESC',
+      "SELECT * FROM metric_runs WHERE metric_id = $1 ORDER BY requested_at DESC",
       [metricId],
     );
 
@@ -129,7 +133,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
       manifest_path: string | null;
       row_count: number | null;
     }>(
-      'SELECT * FROM metric_runs WHERE status = $1 ORDER BY requested_at DESC',
+      "SELECT * FROM metric_runs WHERE status = $1 ORDER BY requested_at DESC",
       [status],
     );
 
@@ -138,7 +142,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
 
   async update(
     id: string,
-    updates: Partial<Omit<MetricRun, 'id' | 'requestedAt'>>,
+    updates: Partial<Omit<MetricRun, "id" | "requestedAt">>,
     client?: TransactionClient,
   ): Promise<MetricRun> {
     const dbClient = this.getClient(client);
@@ -197,7 +201,7 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
     }
 
     values.push(id);
-    const query = `UPDATE metric_runs SET ${setParts.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+    const query = `UPDATE metric_runs SET ${setParts.join(", ")} WHERE id = $${paramIndex} RETURNING *`;
 
     const result = await dbClient.query<{
       id: string;
@@ -228,4 +232,3 @@ export class PostgresMetricRunRepository implements MetricRunRepository {
     return this.update(id, { status }, client);
   }
 }
-

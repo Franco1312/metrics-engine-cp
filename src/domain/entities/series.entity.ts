@@ -7,4 +7,3 @@ export interface Series {
   createdAt: Date;
   updatedAt: Date;
 }
-

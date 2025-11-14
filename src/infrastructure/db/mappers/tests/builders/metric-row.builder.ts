@@ -1,4 +1,4 @@
-import { EXPRESSION_TYPES } from '@/domain/constants/expression-types';
+import { EXPRESSION_TYPES } from "@/domain/constants/expression-types";
 
 interface MetricRowData {
   id?: string;
@@ -14,19 +14,19 @@ interface MetricRowData {
 
 export class MetricRowBuilder {
   private data: MetricRowData = {
-    id: 'metric-123',
-    code: 'test_metric',
+    id: "metric-123",
+    code: "test_metric",
     expression_type: EXPRESSION_TYPES.SERIES_MATH,
     expression_json: {
-      op: 'ratio',
-      left: { seriesCode: 'series1' },
-      right: { seriesCode: 'series2' },
+      op: "ratio",
+      left: { seriesCode: "series1" },
+      right: { seriesCode: "series2" },
     },
-    frequency: 'daily',
-    unit: 'ratio',
-    description: 'Test metric',
-    created_at: new Date('2024-01-01T00:00:00Z'),
-    updated_at: new Date('2024-01-01T00:00:00Z'),
+    frequency: "daily",
+    unit: "ratio",
+    description: "Test metric",
+    created_at: new Date("2024-01-01T00:00:00Z"),
+    updated_at: new Date("2024-01-01T00:00:00Z"),
   };
 
   withId(id: string): this {
@@ -95,4 +95,3 @@ export class MetricRowBuilder {
     };
   }
 }
-

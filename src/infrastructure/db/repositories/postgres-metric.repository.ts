@@ -1,7 +1,11 @@
-import { MetricRepository } from '@/domain/ports/metric.repository';
-import { Metric } from '@/domain/entities/metric.entity';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
-import { MetricMapper } from '@/infrastructure/db/mappers/metric.mapper';
+import { MetricRepository } from "@/domain/ports/metric.repository";
+import { Metric } from "@/domain/entities/metric.entity";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
+import { MetricMapper } from "@/infrastructure/db/mappers/metric.mapper";
 
 export class PostgresMetricRepository implements MetricRepository {
   constructor(private readonly dbClient: DatabaseClient) {}
@@ -25,7 +29,7 @@ export class PostgresMetricRepository implements MetricRepository {
       description: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM metrics WHERE id = $1', [id]);
+    }>("SELECT * FROM metrics WHERE id = $1", [id]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -49,7 +53,7 @@ export class PostgresMetricRepository implements MetricRepository {
       description: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM metrics WHERE code = $1', [code]);
+    }>("SELECT * FROM metrics WHERE code = $1", [code]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -70,9 +74,8 @@ export class PostgresMetricRepository implements MetricRepository {
       description: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM metrics ORDER BY created_at DESC');
+    }>("SELECT * FROM metrics ORDER BY created_at DESC");
 
     return MetricMapper.toDomainList(result.rows);
   }
 }
-

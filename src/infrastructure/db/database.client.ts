@@ -1,9 +1,12 @@
-import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
-import { DatabaseClient, TransactionClient } from '@/domain/interfaces/database-client.interface';
-import { AppConfig } from '@/infrastructure/config/app.config';
-import { Logger } from '@/domain/interfaces/logger.interface';
-import { defaultLogger } from '@/infrastructure/shared/metrics-logger';
-import { LOG_EVENTS } from '@/domain/constants/log-events';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from "pg";
+import {
+  DatabaseClient,
+  TransactionClient,
+} from "@/domain/interfaces/database-client.interface";
+import { AppConfig } from "@/infrastructure/config/app.config";
+import { Logger } from "@/domain/interfaces/logger.interface";
+import { defaultLogger } from "@/infrastructure/shared/metrics-logger";
+import { LOG_EVENTS } from "@/domain/constants/log-events";
 
 class TransactionClientImpl implements TransactionClient {
   constructor(private readonly client: PoolClient) {}
@@ -37,17 +40,17 @@ export class PostgresDatabaseClient implements DatabaseClient {
       connectionTimeoutMillis: 2000,
     });
 
-    this.pool.on('connect', () => {
+    this.pool.on("connect", () => {
       this.logger.info({
         event: LOG_EVENTS.DB_CONNECTION_ESTABLISHED,
-        msg: 'Database connection established',
+        msg: "Database connection established",
       });
     });
 
-    this.pool.on('error', (err) => {
+    this.pool.on("error", (err) => {
       this.logger.error({
         event: LOG_EVENTS.DB_CONNECTION_ERROR,
-        msg: 'Unexpected database error',
+        msg: "Unexpected database error",
         err,
       });
     });
@@ -67,26 +70,26 @@ export class PostgresDatabaseClient implements DatabaseClient {
     const transactionClient = new TransactionClientImpl(client);
 
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
       this.logger.info({
         event: LOG_EVENTS.DB_TRANSACTION_STARTED,
-        msg: 'Transaction started',
+        msg: "Transaction started",
       });
 
       const result = await callback(transactionClient);
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       this.logger.info({
         event: LOG_EVENTS.DB_TRANSACTION_COMMITTED,
-        msg: 'Transaction committed',
+        msg: "Transaction committed",
       });
 
       return result;
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       this.logger.info({
         event: LOG_EVENTS.DB_TRANSACTION_ROLLED_BACK,
-        msg: 'Transaction rolled back',
+        msg: "Transaction rolled back",
         data: { error: error instanceof Error ? error.message : String(error) },
       });
       throw error;
@@ -104,5 +107,4 @@ export class PostgresDatabaseClient implements DatabaseClient {
   }
 }
 
-export const DATABASE_CLIENT_TOKEN = 'DATABASE_CLIENT';
-
+export const DATABASE_CLIENT_TOKEN = "DATABASE_CLIENT";

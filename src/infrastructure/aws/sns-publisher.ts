@@ -1,9 +1,9 @@
-import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
-import { SNSPublisher } from '@/domain/interfaces/sns-publisher.interface';
-import { MetricRunRequestEvent } from '@/domain/dto/metric-run-request-event.dto';
-import { Logger } from '@/domain/interfaces/logger.interface';
-import { LOG_EVENTS } from '@/domain/constants/log-events';
-import { AppConfig } from '@/infrastructure/config/app.config';
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import { SNSPublisher } from "@/domain/interfaces/sns-publisher.interface";
+import { MetricRunRequestEvent } from "@/domain/dto/metric-run-request-event.dto";
+import { Logger } from "@/domain/interfaces/logger.interface";
+import { LOG_EVENTS } from "@/domain/constants/log-events";
+import { AppConfig } from "@/infrastructure/config/app.config";
 
 export class AwsSnsPublisher implements SNSPublisher {
   private readonly snsClient: SNSClient;
@@ -16,12 +16,13 @@ export class AwsSnsPublisher implements SNSPublisher {
   ) {
     this.snsClient = new SNSClient({
       region: config.aws.region,
-      credentials: config.aws.accessKeyId && config.aws.secretAccessKey
-        ? {
-            accessKeyId: config.aws.accessKeyId,
-            secretAccessKey: config.aws.secretAccessKey,
-          }
-        : undefined,
+      credentials:
+        config.aws.accessKeyId && config.aws.secretAccessKey
+          ? {
+              accessKeyId: config.aws.accessKeyId,
+              secretAccessKey: config.aws.secretAccessKey,
+            }
+          : undefined,
     });
     this.topicArn = config.sns.topicArn;
     this.isFifo = config.sns.isFifo;
@@ -44,7 +45,7 @@ export class AwsSnsPublisher implements SNSPublisher {
 
       this.logger.info({
         event: LOG_EVENTS.SNS_MESSAGE_PUBLISHED,
-        msg: 'Metric run request event published to SNS',
+        msg: "Metric run request event published to SNS",
         data: {
           runId: event.runId,
           metricCode: event.metricCode,
@@ -54,7 +55,7 @@ export class AwsSnsPublisher implements SNSPublisher {
     } catch (error) {
       this.logger.error({
         event: LOG_EVENTS.SNS_PUBLISH_ERROR,
-        msg: 'Failed to publish metric run request to SNS',
+        msg: "Failed to publish metric run request to SNS",
         data: {
           runId: event.runId,
           metricCode: event.metricCode,
@@ -66,5 +67,4 @@ export class AwsSnsPublisher implements SNSPublisher {
   }
 }
 
-export const SNS_PUBLISHER_TOKEN = 'SNS_PUBLISHER';
-
+export const SNS_PUBLISHER_TOKEN = "SNS_PUBLISHER";

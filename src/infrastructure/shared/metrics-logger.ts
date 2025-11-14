@@ -1,17 +1,17 @@
-import pino from 'pino';
-import { Logger } from '@/domain/interfaces/logger.interface';
+import pino from "pino";
+import { Logger } from "@/domain/interfaces/logger.interface";
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isDevelopment = process.env.NODE_ENV === "development";
 
 const pinoLogger = pino({
-  level: process.env.LOG_LEVEL ?? 'info',
+  level: process.env.LOG_LEVEL ?? "info",
   transport: isDevelopment
     ? {
-        target: 'pino-pretty',
+        target: "pino-pretty",
         options: {
           colorize: true,
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname',
+          translateTime: "HH:MM:ss Z",
+          ignore: "pid,hostname",
         },
       }
     : undefined,
@@ -60,4 +60,3 @@ class MetricsLogger implements Logger {
 }
 
 export const defaultLogger: Logger = new MetricsLogger();
-

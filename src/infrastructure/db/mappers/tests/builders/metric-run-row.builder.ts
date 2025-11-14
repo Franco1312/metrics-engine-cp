@@ -1,4 +1,4 @@
-import { METRIC_RUN_STATUS } from '@/domain/constants/metric-status';
+import { METRIC_RUN_STATUS } from "@/domain/constants/metric-status";
 
 interface MetricRunRowData {
   id?: string;
@@ -17,11 +17,11 @@ interface MetricRunRowData {
 
 export class MetricRunRowBuilder {
   private data: MetricRunRowData = {
-    id: 'run-123',
-    metric_id: 'metric-123',
-    metric_code: 'test_metric',
+    id: "run-123",
+    metric_id: "metric-123",
+    metric_code: "test_metric",
     status: METRIC_RUN_STATUS.QUEUED,
-    requested_at: new Date('2024-01-01T00:00:00Z'),
+    requested_at: new Date("2024-01-01T00:00:00Z"),
     started_at: null,
     finished_at: null,
     last_heartbeat_at: null,
@@ -93,24 +93,24 @@ export class MetricRunRowBuilder {
 
   asRunning(): this {
     this.data.status = METRIC_RUN_STATUS.RUNNING;
-    this.data.started_at = new Date('2024-01-01T01:00:00Z');
-    this.data.last_heartbeat_at = new Date('2024-01-01T01:30:00Z');
+    this.data.started_at = new Date("2024-01-01T01:00:00Z");
+    this.data.last_heartbeat_at = new Date("2024-01-01T01:30:00Z");
     return this;
   }
 
   asSucceeded(): this {
     this.data.status = METRIC_RUN_STATUS.SUCCEEDED;
-    this.data.finished_at = new Date('2024-01-01T02:00:00Z');
-    this.data.version_ts = '2024-01-01T02:00:00Z';
-    this.data.manifest_path = 's3://bucket/metrics/test_metric/manifest.json';
+    this.data.finished_at = new Date("2024-01-01T02:00:00Z");
+    this.data.version_ts = "2024-01-01T02:00:00Z";
+    this.data.manifest_path = "s3://bucket/metrics/test_metric/manifest.json";
     this.data.row_count = 100;
     return this;
   }
 
   asFailed(): this {
     this.data.status = METRIC_RUN_STATUS.FAILED;
-    this.data.finished_at = new Date('2024-01-01T02:00:00Z');
-    this.data.error = 'Test error message';
+    this.data.finished_at = new Date("2024-01-01T02:00:00Z");
+    this.data.error = "Test error message";
     return this;
   }
 
@@ -131,4 +131,3 @@ export class MetricRunRowBuilder {
     };
   }
 }
-

@@ -1,5 +1,5 @@
-import { Metric } from '@/domain/entities/metric.entity';
-import { ExpressionJson } from '@/domain/constants/expression-types';
+import { Metric } from "@/domain/entities/metric.entity";
+import { ExpressionJson } from "@/domain/constants/expression-types";
 
 interface MetricRow {
   id: string;
@@ -18,7 +18,7 @@ export class MetricMapper {
     return {
       id: row.id,
       code: row.code,
-      expressionType: row.expression_type as Metric['expressionType'],
+      expressionType: row.expression_type as Metric["expressionType"],
       expressionJson: row.expression_json as ExpressionJson,
       frequency: row.frequency ?? undefined,
       unit: row.unit ?? undefined,
@@ -32,4 +32,3 @@ export class MetricMapper {
     return rows.map((row) => this.toDomain(row));
   }
 }
-

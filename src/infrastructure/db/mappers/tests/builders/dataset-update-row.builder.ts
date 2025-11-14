@@ -10,13 +10,14 @@ interface DatasetUpdateRowData {
 
 export class DatasetUpdateRowBuilder {
   private data: DatasetUpdateRowData = {
-    id: 'update-123',
-    dataset_id: 'dataset-123',
-    version_manifest_path: 'datasets/dataset-123/versions/v20240101/manifest.json',
-    projections_path: 'datasets/dataset-123/projections/',
-    bucket: 'test-bucket',
-    event_key: 'dataset-123:v20240101',
-    created_at: new Date('2024-01-01T00:00:00Z'),
+    id: "update-123",
+    dataset_id: "dataset-123",
+    version_manifest_path:
+      "datasets/dataset-123/versions/v20240101/manifest.json",
+    projections_path: "datasets/dataset-123/projections/",
+    bucket: "test-bucket",
+    event_key: "dataset-123:v20240101",
+    created_at: new Date("2024-01-01T00:00:00Z"),
   };
 
   withId(id: string): this {
@@ -71,4 +72,3 @@ export class DatasetUpdateRowBuilder {
     };
   }
 }
-

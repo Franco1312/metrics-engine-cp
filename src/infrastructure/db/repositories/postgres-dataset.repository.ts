@@ -1,6 +1,10 @@
-import { DatasetRepository } from '@/domain/ports/dataset.repository';
-import { Dataset } from '@/domain/entities/dataset.entity';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
+import { DatasetRepository } from "@/domain/ports/dataset.repository";
+import { Dataset } from "@/domain/entities/dataset.entity";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
 
 export class PostgresDatasetRepository implements DatasetRepository {
   constructor(private readonly dbClient: DatabaseClient) {}
@@ -21,7 +25,7 @@ export class PostgresDatasetRepository implements DatasetRepository {
       bucket: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM datasets WHERE id = $1', [id]);
+    }>("SELECT * FROM datasets WHERE id = $1", [id]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -39,7 +43,35 @@ export class PostgresDatasetRepository implements DatasetRepository {
       bucket: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM datasets ORDER BY id');
+    }>("SELECT * FROM datasets ORDER BY id");
+
+    return result.rows.map((row) => this.mapToDomain(row));
+  }
+
+  async findBySeriesCodes(
+    seriesCodes: string[],
+    client?: TransactionClient,
+  ): Promise<Dataset[]> {
+    if (seriesCodes.length === 0) {
+      return [];
+    }
+
+    const dbClient = this.getClient(client);
+    const result = await dbClient.query<{
+      id: string;
+      name: string | null;
+      description: string | null;
+      bucket: string | null;
+      created_at: Date;
+      updated_at: Date;
+    }>(
+      `SELECT DISTINCT d.* 
+       FROM datasets d
+       INNER JOIN dataset_series ds ON d.id = ds.dataset_id
+       WHERE ds.series_code = ANY($1)
+       ORDER BY d.id`,
+      [seriesCodes],
+    );
 
     return result.rows.map((row) => this.mapToDomain(row));
   }
@@ -62,4 +94,3 @@ export class PostgresDatasetRepository implements DatasetRepository {
     };
   }
 }
-

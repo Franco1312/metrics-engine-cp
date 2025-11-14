@@ -1,7 +1,7 @@
 import {
   ExpressionType,
   ExpressionJson,
-} from '@/domain/constants/expression-types';
+} from "@/domain/constants/expression-types";
 
 /**
  * Input para una métrica (datasetId y seriesCode)
@@ -37,7 +37,7 @@ export interface MetricOutput {
  * Evento que se publica para solicitar la ejecución de una métrica
  */
 export interface MetricRunRequestEvent {
-  type: 'metric_run_requested';
+  type: "metric_run_requested";
   runId: string;
   metricCode: string;
   expressionType: ExpressionType;
@@ -48,4 +48,3 @@ export interface MetricRunRequestEvent {
   messageGroupId?: string;
   messageDeduplicationId?: string;
 }
-

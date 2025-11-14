@@ -1,4 +1,4 @@
-import { DatasetUpdate } from '@/domain/entities/dataset-update.entity';
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
 
 /**
  * Servicio de dominio para validar ventanas de tiempo
@@ -45,4 +45,3 @@ export class TimeWindowValidatorService {
     return cutoffDate;
   }
 }
-

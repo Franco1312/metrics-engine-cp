@@ -1,6 +1,6 @@
-import { Provider } from '@nestjs/common';
-import { DATABASE_CLIENT_TOKEN } from '@/infrastructure/db/database.client';
-import { DatabaseClient } from '@/domain/interfaces/database-client.interface';
+import { Provider } from "@nestjs/common";
+import { DATABASE_CLIENT_TOKEN } from "@/infrastructure/db/database.client";
+import { DatabaseClient } from "@/domain/interfaces/database-client.interface";
 import {
   MetricRepository,
   SeriesRepository,
@@ -9,7 +9,7 @@ import {
   MetricRunRepository,
   PendingDatasetRepository,
   EventLogRepository,
-} from '@/domain/ports';
+} from "@/domain/ports";
 import {
   PostgresMetricRepository,
   PostgresSeriesRepository,
@@ -18,16 +18,16 @@ import {
   PostgresMetricRunRepository,
   PostgresPendingDatasetRepository,
   PostgresEventLogRepository,
-} from '@/infrastructure/db/repositories';
+} from "@/infrastructure/db/repositories";
 
 export const REPOSITORY_TOKENS = {
-  METRIC: 'MetricRepository',
-  SERIES: 'SeriesRepository',
-  DATASET: 'DatasetRepository',
-  DATASET_UPDATE: 'DatasetUpdateRepository',
-  METRIC_RUN: 'MetricRunRepository',
-  PENDING_DATASET: 'PendingDatasetRepository',
-  EVENT_LOG: 'EventLogRepository',
+  METRIC: "MetricRepository",
+  SERIES: "SeriesRepository",
+  DATASET: "DatasetRepository",
+  DATASET_UPDATE: "DatasetUpdateRepository",
+  METRIC_RUN: "MetricRunRepository",
+  PENDING_DATASET: "PendingDatasetRepository",
+  EVENT_LOG: "EventLogRepository",
 } as const;
 
 export const repositoriesProviders: Provider[] = [
@@ -81,4 +81,3 @@ export const repositoriesProviders: Provider[] = [
     },
   },
 ];
-

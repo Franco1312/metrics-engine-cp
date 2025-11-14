@@ -1,5 +1,5 @@
-import { MetricRun } from '@/domain/entities/metric-run.entity';
-import { MetricRunStatus } from '@/domain/constants/metric-status';
+import { MetricRun } from "@/domain/entities/metric-run.entity";
+import { MetricRunStatus } from "@/domain/constants/metric-status";
 
 interface MetricRunRow {
   id: string;
@@ -39,8 +39,8 @@ export class MetricRunMapper {
   }
 
   static toRow(
-    run: Omit<MetricRun, 'id' | 'requestedAt'>,
-  ): Omit<MetricRunRow, 'id' | 'requested_at'> {
+    run: Omit<MetricRun, "id" | "requestedAt">,
+  ): Omit<MetricRunRow, "id" | "requested_at"> {
     return {
       metric_id: run.metricId,
       metric_code: run.metricCode,
@@ -55,4 +55,3 @@ export class MetricRunMapper {
     };
   }
 }
-

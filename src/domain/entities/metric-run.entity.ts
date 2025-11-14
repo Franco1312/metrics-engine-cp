@@ -1,4 +1,4 @@
-import { MetricRunStatus } from '@/domain/constants/metric-status';
+import { MetricRunStatus } from "@/domain/constants/metric-status";
 
 export interface MetricRun {
   id: string;
@@ -14,4 +14,3 @@ export interface MetricRun {
   manifestPath?: string;
   rowCount?: number;
 }
-

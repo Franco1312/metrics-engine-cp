@@ -1,5 +1,12 @@
-import { EventLogRepository, EventLog } from '@/domain/ports/event-log.repository';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
+import {
+  EventLogRepository,
+  EventLog,
+} from "@/domain/ports/event-log.repository";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
 
 export class PostgresEventLogRepository implements EventLogRepository {
   constructor(private readonly dbClient: DatabaseClient) {}
@@ -9,7 +16,7 @@ export class PostgresEventLogRepository implements EventLogRepository {
   }
 
   async create(
-    event: Omit<EventLog, 'createdAt'>,
+    event: Omit<EventLog, "createdAt">,
     client?: TransactionClient,
   ): Promise<EventLog> {
     const dbClient = this.getClient(client);
@@ -40,7 +47,9 @@ export class PostgresEventLogRepository implements EventLogRepository {
       // Already exists, return existing
       const existing = await this.findByEventKey(event.eventKey, client);
       if (!existing) {
-        throw new Error(`Failed to create or find event log with key ${event.eventKey}`);
+        throw new Error(
+          `Failed to create or find event log with key ${event.eventKey}`,
+        );
       }
       return existing;
     }
@@ -63,7 +72,7 @@ export class PostgresEventLogRepository implements EventLogRepository {
       processed_at: Date | null;
       run_id: string | null;
       created_at: Date;
-    }>('SELECT * FROM event_log WHERE event_key = $1', [eventKey]);
+    }>("SELECT * FROM event_log WHERE event_key = $1", [eventKey]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -98,7 +107,7 @@ export class PostgresEventLogRepository implements EventLogRepository {
       eventKey: row.event_key,
       eventType: row.event_type,
       eventPayload:
-        typeof row.event_payload === 'string'
+        typeof row.event_payload === "string"
           ? JSON.parse(row.event_payload)
           : (row.event_payload as Record<string, unknown>),
       processedAt: row.processed_at ?? undefined,
@@ -107,4 +116,3 @@ export class PostgresEventLogRepository implements EventLogRepository {
     };
   }
 }
-

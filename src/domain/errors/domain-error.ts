@@ -8,4 +8,3 @@ export abstract class DomainError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
-

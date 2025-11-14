@@ -1,4 +1,4 @@
-import { DatasetUpdate } from '@/domain/entities/dataset-update.entity';
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
 
 interface DatasetUpdateRow {
   id: string;
@@ -27,10 +27,9 @@ export class DatasetUpdateMapper {
     return rows.map((row) => this.toDomain(row));
   }
 
-  static toRow(update: Omit<DatasetUpdate, 'id' | 'createdAt'>): Omit<
-    DatasetUpdateRow,
-    'id' | 'created_at'
-  > {
+  static toRow(
+    update: Omit<DatasetUpdate, "id" | "createdAt">,
+  ): Omit<DatasetUpdateRow, "id" | "created_at"> {
     return {
       dataset_id: update.datasetId,
       version_manifest_path: update.versionManifestPath,
@@ -40,4 +39,3 @@ export class DatasetUpdateMapper {
     };
   }
 }
-

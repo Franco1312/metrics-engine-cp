@@ -1,22 +1,26 @@
-import { AwsS3Client } from '../../s3-client';
-import { S3Client, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
-import { AppConfigBuilder } from '../builders/app-config.builder';
-import { Logger } from '@/domain/interfaces/logger.interface';
-import { LOG_EVENTS } from '@/domain/constants/log-events';
+import { AwsS3Client } from "../../s3-client";
+import {
+  S3Client,
+  GetObjectCommand,
+  HeadObjectCommand,
+} from "@aws-sdk/client-s3";
+import { AppConfigBuilder } from "../builders/app-config.builder";
+import { Logger } from "@/domain/interfaces/logger.interface";
+import { LOG_EVENTS } from "@/domain/constants/log-events";
 
 // Mock AWS SDK
-jest.mock('@aws-sdk/client-s3');
+jest.mock("@aws-sdk/client-s3");
 
-describe('AwsS3Client', () => {
+describe("AwsS3Client", () => {
   let s3Client: AwsS3Client;
   let mockLogger: jest.Mocked<Logger>;
   let mockS3Client: {
     send: jest.Mock<
-      Promise<{ Body?: any } | {}>,
+      Promise<{ Body?: unknown } | Record<string, never>>,
       [command: GetObjectCommand | HeadObjectCommand]
     >;
   };
-  let config: ReturnType<AppConfigBuilder['build']>;
+  let config: ReturnType<AppConfigBuilder["build"]>;
 
   beforeEach(() => {
     mockLogger = {
@@ -26,7 +30,7 @@ describe('AwsS3Client', () => {
 
     mockS3Client = {
       send: jest.fn<
-        Promise<{ Body?: any } | {}>,
+        Promise<{ Body?: unknown } | Record<string, never>>,
         [command: GetObjectCommand | HeadObjectCommand]
       >(),
     };
@@ -44,11 +48,11 @@ describe('AwsS3Client', () => {
     jest.clearAllMocks();
   });
 
-  describe('getObject', () => {
-    it('should read object from S3 successfully', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
-      const buffer = Buffer.from('test content');
+  describe("getObject", () => {
+    it("should read object from S3 successfully", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
+      const buffer = Buffer.from("test content");
 
       // Mock the stream-like response
       const mockStream = {
@@ -70,7 +74,7 @@ describe('AwsS3Client', () => {
       expect(result).toEqual(buffer);
       expect(mockLogger.info).toHaveBeenCalledWith({
         event: LOG_EVENTS.S3_OBJECT_READ,
-        msg: 'Object read from S3',
+        msg: "Object read from S3",
         data: {
           bucket,
           key,
@@ -79,11 +83,11 @@ describe('AwsS3Client', () => {
       });
     });
 
-    it('should handle multiple chunks in stream', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
-      const chunk1 = Buffer.from('chunk1');
-      const chunk2 = Buffer.from('chunk2');
+    it("should handle multiple chunks in stream", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
+      const chunk1 = Buffer.from("chunk1");
+      const chunk2 = Buffer.from("chunk2");
       const expectedBuffer = Buffer.concat([chunk1, chunk2]);
 
       const mockStream = {
@@ -102,9 +106,9 @@ describe('AwsS3Client', () => {
       expect(result).toEqual(expectedBuffer);
     });
 
-    it('should throw error when object body is missing', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
+    it("should throw error when object body is missing", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
 
       mockS3Client.send.mockResolvedValue({
         Body: null,
@@ -117,7 +121,7 @@ describe('AwsS3Client', () => {
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.objectContaining({
           event: LOG_EVENTS.S3_READ_ERROR,
-          msg: 'Failed to read object from S3',
+          msg: "Failed to read object from S3",
           data: {
             bucket,
             key,
@@ -126,20 +130,20 @@ describe('AwsS3Client', () => {
       );
     });
 
-    it('should log error and throw when S3 read fails', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
-      const error = new Error('S3 read failed');
+    it("should log error and throw when S3 read fails", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
+      const error = new Error("S3 read failed");
 
       mockS3Client.send.mockRejectedValue(error);
 
       await expect(s3Client.getObject(bucket, key)).rejects.toThrow(
-        'S3 read failed',
+        "S3 read failed",
       );
 
       expect(mockLogger.error).toHaveBeenCalledWith({
         event: LOG_EVENTS.S3_READ_ERROR,
-        msg: 'Failed to read object from S3',
+        msg: "Failed to read object from S3",
         data: {
           bucket,
           key,
@@ -149,10 +153,10 @@ describe('AwsS3Client', () => {
     });
   });
 
-  describe('objectExists', () => {
-    it('should return true when object exists', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
+  describe("objectExists", () => {
+    it("should return true when object exists", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
 
       mockS3Client.send.mockResolvedValue({});
 
@@ -164,12 +168,12 @@ describe('AwsS3Client', () => {
       expect(command).toBeInstanceOf(HeadObjectCommand);
     });
 
-    it('should return false when object does not exist (404)', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
+    it("should return false when object does not exist (404)", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
 
-      const error: any = new Error('Not found');
-      error.name = 'NotFound';
+      const error: any = new Error("Not found");
+      error.name = "NotFound";
       mockS3Client.send.mockRejectedValue(error);
 
       const result = await s3Client.objectExists(bucket, key);
@@ -177,11 +181,11 @@ describe('AwsS3Client', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false when object does not exist (httpStatusCode 404)', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
+    it("should return false when object does not exist (httpStatusCode 404)", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
 
-      const error: any = new Error('Not found');
+      const error: any = new Error("Not found");
       error.$metadata = { httpStatusCode: 404 };
       mockS3Client.send.mockRejectedValue(error);
 
@@ -190,20 +194,20 @@ describe('AwsS3Client', () => {
       expect(result).toBe(false);
     });
 
-    it('should log error and throw for non-404 errors', async () => {
-      const bucket = 'test-bucket';
-      const key = 'test-key';
-      const error = new Error('Access denied');
+    it("should log error and throw for non-404 errors", async () => {
+      const bucket = "test-bucket";
+      const key = "test-key";
+      const error = new Error("Access denied");
 
       mockS3Client.send.mockRejectedValue(error);
 
       await expect(s3Client.objectExists(bucket, key)).rejects.toThrow(
-        'Access denied',
+        "Access denied",
       );
 
       expect(mockLogger.error).toHaveBeenCalledWith({
         event: LOG_EVENTS.S3_READ_ERROR,
-        msg: 'Failed to check if object exists in S3',
+        msg: "Failed to check if object exists in S3",
         data: {
           bucket,
           key,
@@ -213,10 +217,10 @@ describe('AwsS3Client', () => {
     });
   });
 
-  describe('constructor', () => {
-    it('should use credentials from config when provided', () => {
+  describe("constructor", () => {
+    it("should use credentials from config when provided", () => {
       const configWithCreds = new AppConfigBuilder()
-        .withAwsCredentials('access-key', 'secret-key')
+        .withAwsCredentials("access-key", "secret-key")
         .build();
 
       new AwsS3Client(configWithCreds, mockLogger);
@@ -224,13 +228,13 @@ describe('AwsS3Client', () => {
       expect(S3Client).toHaveBeenCalledWith({
         region: configWithCreds.aws.region,
         credentials: {
-          accessKeyId: 'access-key',
-          secretAccessKey: 'secret-key',
+          accessKeyId: "access-key",
+          secretAccessKey: "secret-key",
         },
       });
     });
 
-    it('should not use credentials when not provided', () => {
+    it("should not use credentials when not provided", () => {
       const configWithoutCreds = new AppConfigBuilder()
         .withoutAwsCredentials()
         .build();
@@ -244,4 +248,3 @@ describe('AwsS3Client', () => {
     });
   });
 });
-

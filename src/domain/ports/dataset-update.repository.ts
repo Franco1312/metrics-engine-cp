@@ -1,9 +1,9 @@
-import { DatasetUpdate } from '@/domain/entities/dataset-update.entity';
-import { TransactionClient } from '@/domain/interfaces/database-client.interface';
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
+import { TransactionClient } from "@/domain/interfaces/database-client.interface";
 
 export interface DatasetUpdateRepository {
   create(
-    update: Omit<DatasetUpdate, 'id' | 'createdAt'>,
+    update: Omit<DatasetUpdate, "id" | "createdAt">,
     client?: TransactionClient,
   ): Promise<DatasetUpdate>;
   findById(
@@ -23,4 +23,3 @@ export interface DatasetUpdateRepository {
     client?: TransactionClient,
   ): Promise<DatasetUpdate | null>;
 }
-

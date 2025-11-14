@@ -1,11 +1,11 @@
-import { Metric } from '@/domain/entities/metric.entity';
+import { Metric } from "@/domain/entities/metric.entity";
 import {
   ExpressionJson,
   SeriesMathExpression,
   WindowOpExpression,
   CompositeExpression,
   SeriesReference,
-} from '@/domain/constants/expression-types';
+} from "@/domain/constants/expression-types";
 
 /**
  * Servicio de dominio para extraer dependencias de métricas
@@ -74,7 +74,7 @@ export class MetricDependencyExtractorService {
   private static isSeriesReference(
     value: SeriesReference | ExpressionJson,
   ): value is SeriesReference {
-    return 'seriesCode' in value && typeof value.seriesCode === 'string';
+    return "seriesCode" in value && typeof value.seriesCode === "string";
   }
 
   /**
@@ -83,7 +83,7 @@ export class MetricDependencyExtractorService {
   private static isSeriesMathExpression(
     expression: ExpressionJson,
   ): expression is SeriesMathExpression {
-    return 'op' in expression && 'left' in expression && 'right' in expression;
+    return "op" in expression && "left" in expression && "right" in expression;
   }
 
   /**
@@ -92,7 +92,7 @@ export class MetricDependencyExtractorService {
   private static isWindowOpExpression(
     expression: ExpressionJson,
   ): expression is WindowOpExpression {
-    return 'window' in expression && 'series' in expression;
+    return "window" in expression && "series" in expression;
   }
 
   /**
@@ -101,7 +101,6 @@ export class MetricDependencyExtractorService {
   private static isCompositeExpression(
     expression: ExpressionJson,
   ): expression is CompositeExpression {
-    return 'operands' in expression && Array.isArray(expression.operands);
+    return "operands" in expression && Array.isArray(expression.operands);
   }
 }
-

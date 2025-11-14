@@ -1,6 +1,10 @@
-import { SeriesRepository } from '@/domain/ports/series.repository';
-import { Series } from '@/domain/entities/series.entity';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
+import { SeriesRepository } from "@/domain/ports/series.repository";
+import { Series } from "@/domain/entities/series.entity";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
 
 export class PostgresSeriesRepository implements SeriesRepository {
   constructor(private readonly dbClient: DatabaseClient) {}
@@ -22,7 +26,7 @@ export class PostgresSeriesRepository implements SeriesRepository {
       frequency: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM series WHERE code = $1', [code]);
+    }>("SELECT * FROM series WHERE code = $1", [code]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -48,7 +52,7 @@ export class PostgresSeriesRepository implements SeriesRepository {
       frequency: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM series WHERE code = ANY($1)', [codes]);
+    }>("SELECT * FROM series WHERE code = ANY($1)", [codes]);
 
     return result.rows.map((row) => this.mapToDomain(row));
   }
@@ -63,7 +67,7 @@ export class PostgresSeriesRepository implements SeriesRepository {
       frequency: string | null;
       created_at: Date;
       updated_at: Date;
-    }>('SELECT * FROM series ORDER BY code');
+    }>("SELECT * FROM series ORDER BY code");
 
     return result.rows.map((row) => this.mapToDomain(row));
   }
@@ -88,4 +92,3 @@ export class PostgresSeriesRepository implements SeriesRepository {
     };
   }
 }
-

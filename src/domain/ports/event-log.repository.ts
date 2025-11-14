@@ -1,4 +1,4 @@
-import { TransactionClient } from '@/domain/interfaces/database-client.interface';
+import { TransactionClient } from "@/domain/interfaces/database-client.interface";
 
 export interface EventLog {
   eventKey: string;
@@ -11,7 +11,7 @@ export interface EventLog {
 
 export interface EventLogRepository {
   create(
-    event: Omit<EventLog, 'createdAt'>,
+    event: Omit<EventLog, "createdAt">,
     client?: TransactionClient,
   ): Promise<EventLog>;
   findByEventKey(
@@ -24,4 +24,3 @@ export interface EventLogRepository {
     client?: TransactionClient,
   ): Promise<void>;
 }
-

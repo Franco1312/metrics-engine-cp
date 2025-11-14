@@ -1,4 +1,4 @@
-import { PendingDataset } from '@/domain/entities/pending-dataset.entity';
+import { PendingDataset } from "@/domain/entities/pending-dataset.entity";
 
 interface PendingDatasetRow {
   run_id: string;
@@ -28,8 +28,8 @@ export class PendingDatasetMapper {
   }
 
   static toRow(
-    pending: Omit<PendingDataset, 'createdAt'>,
-  ): Omit<PendingDatasetRow, 'created_at'> {
+    pending: Omit<PendingDataset, "createdAt">,
+  ): Omit<PendingDatasetRow, "created_at"> {
     return {
       run_id: pending.runId,
       dataset_id: pending.datasetId,
@@ -40,4 +40,3 @@ export class PendingDatasetMapper {
     };
   }
 }
-

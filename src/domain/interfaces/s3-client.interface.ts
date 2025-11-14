@@ -13,4 +13,3 @@ export interface S3Client {
    */
   objectExists(bucket: string, key: string): Promise<boolean>;
 }
-

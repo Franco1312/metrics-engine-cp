@@ -1,41 +1,41 @@
-import { AppConfig } from '@/infrastructure/config/app.config';
+import { AppConfig } from "@/infrastructure/config/app.config";
 
 interface AppConfigData {
-  database?: AppConfig['database'];
-  aws?: AppConfig['aws'];
-  sns?: AppConfig['sns'];
-  s3?: AppConfig['s3'];
-  logging?: AppConfig['logging'];
-  app?: AppConfig['app'];
+  database?: AppConfig["database"];
+  aws?: AppConfig["aws"];
+  sns?: AppConfig["sns"];
+  s3?: AppConfig["s3"];
+  logging?: AppConfig["logging"];
+  app?: AppConfig["app"];
 }
 
 export class AppConfigBuilder {
   private data: AppConfigData = {
     database: {
-      host: 'localhost',
+      host: "localhost",
       port: 5432,
-      name: 'test_db',
-      user: 'test_user',
-      password: 'test_password',
+      name: "test_db",
+      user: "test_user",
+      password: "test_password",
     },
     aws: {
-      region: 'us-east-1',
-      accessKeyId: 'test-access-key',
-      secretAccessKey: 'test-secret-key',
+      region: "us-east-1",
+      accessKeyId: "test-access-key",
+      secretAccessKey: "test-secret-key",
     },
     sns: {
-      topicArn: 'arn:aws:sns:us-east-1:123456789012:test-topic',
+      topicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
       isFifo: false,
     },
     s3: {
-      bucket: 'test-bucket',
+      bucket: "test-bucket",
     },
     logging: {
-      level: 'info',
+      level: "info",
     },
     app: {
       port: 3000,
-      nodeEnv: 'test',
+      nodeEnv: "test",
     },
   };
 
@@ -88,4 +88,3 @@ export class AppConfigBuilder {
     };
   }
 }
-

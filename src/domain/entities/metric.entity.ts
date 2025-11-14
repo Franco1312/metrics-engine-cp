@@ -1,4 +1,7 @@
-import { ExpressionType, ExpressionJson } from '@/domain/constants/expression-types';
+import {
+  ExpressionType,
+  ExpressionJson,
+} from "@/domain/constants/expression-types";
 
 export interface Metric {
   id: string;
@@ -11,4 +14,3 @@ export interface Metric {
   createdAt: Date;
   updatedAt: Date;
 }
-

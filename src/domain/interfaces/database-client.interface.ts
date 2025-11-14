@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+import { PoolClient, QueryResult, QueryResultRow } from "pg";
 
 /**
  * Interfaz común para ejecutar queries (usada por TransactionClient y DatabaseClient)
@@ -48,4 +48,3 @@ export interface DatabaseClient {
    */
   close(): Promise<void>;
 }
-

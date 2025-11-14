@@ -1,10 +1,10 @@
-import { MetricRun } from '@/domain/entities/metric-run.entity';
-import { MetricRunStatus } from '@/domain/constants/metric-status';
-import { TransactionClient } from '@/domain/interfaces/database-client.interface';
+import { MetricRun } from "@/domain/entities/metric-run.entity";
+import { MetricRunStatus } from "@/domain/constants/metric-status";
+import { TransactionClient } from "@/domain/interfaces/database-client.interface";
 
 export interface MetricRunRepository {
   create(
-    run: Omit<MetricRun, 'id' | 'requestedAt'>,
+    run: Omit<MetricRun, "id" | "requestedAt">,
     client?: TransactionClient,
   ): Promise<MetricRun>;
   findById(id: string, client?: TransactionClient): Promise<MetricRun | null>;
@@ -18,7 +18,7 @@ export interface MetricRunRepository {
   ): Promise<MetricRun[]>;
   update(
     id: string,
-    updates: Partial<Omit<MetricRun, 'id' | 'requestedAt'>>,
+    updates: Partial<Omit<MetricRun, "id" | "requestedAt">>,
     client?: TransactionClient,
   ): Promise<MetricRun>;
   updateStatus(
@@ -27,4 +27,3 @@ export interface MetricRunRepository {
     client?: TransactionClient,
   ): Promise<MetricRun>;
 }
-

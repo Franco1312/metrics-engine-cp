@@ -1,4 +1,4 @@
-import { DatasetUpdate } from '@/domain/entities/dataset-update.entity';
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
 
 interface DatasetUpdateData {
   id?: string;
@@ -12,13 +12,14 @@ interface DatasetUpdateData {
 
 export class DatasetUpdateBuilder {
   private data: DatasetUpdateData = {
-    id: 'update-123',
-    datasetId: 'dataset-123',
-    versionManifestPath: 'datasets/dataset-123/versions/v20240101/manifest.json',
-    projectionsPath: 'datasets/dataset-123/projections/',
-    bucket: 'test-bucket',
-    eventKey: 'dataset-123:v20240101',
-    createdAt: new Date('2024-01-15T00:00:00Z'),
+    id: "update-123",
+    datasetId: "dataset-123",
+    versionManifestPath:
+      "datasets/dataset-123/versions/v20240101/manifest.json",
+    projectionsPath: "datasets/dataset-123/projections/",
+    bucket: "test-bucket",
+    eventKey: "dataset-123:v20240101",
+    createdAt: new Date("2024-01-15T00:00:00Z"),
   };
 
   withId(id: string): this {
@@ -55,4 +56,3 @@ export class DatasetUpdateBuilder {
     };
   }
 }
-

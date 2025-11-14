@@ -1,9 +1,9 @@
-import { PendingDataset } from '@/domain/entities/pending-dataset.entity';
-import { TransactionClient } from '@/domain/interfaces/database-client.interface';
+import { PendingDataset } from "@/domain/entities/pending-dataset.entity";
+import { TransactionClient } from "@/domain/interfaces/database-client.interface";
 
 export interface PendingDatasetRepository {
   create(
-    pending: Omit<PendingDataset, 'createdAt'>,
+    pending: Omit<PendingDataset, "createdAt">,
     client?: TransactionClient,
   ): Promise<PendingDataset>;
   findByRunId(
@@ -21,9 +21,7 @@ export interface PendingDatasetRepository {
   update(
     runId: string,
     datasetId: string,
-    updates: Partial<
-      Omit<PendingDataset, 'runId' | 'datasetId' | 'createdAt'>
-    >,
+    updates: Partial<Omit<PendingDataset, "runId" | "datasetId" | "createdAt">>,
     client?: TransactionClient,
   ): Promise<PendingDataset>;
   delete(
@@ -36,4 +34,3 @@ export interface PendingDatasetRepository {
     client?: TransactionClient,
   ): Promise<number>;
 }
-

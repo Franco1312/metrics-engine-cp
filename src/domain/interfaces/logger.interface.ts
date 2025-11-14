@@ -12,4 +12,3 @@ export interface Logger {
     err: Error | unknown;
   }) => void;
 }
-

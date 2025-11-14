@@ -1,7 +1,11 @@
-import { DatasetUpdateRepository } from '@/domain/ports/dataset-update.repository';
-import { DatasetUpdate } from '@/domain/entities/dataset-update.entity';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
-import { DatasetUpdateMapper } from '@/infrastructure/db/mappers/dataset-update.mapper';
+import { DatasetUpdateRepository } from "@/domain/ports/dataset-update.repository";
+import { DatasetUpdate } from "@/domain/entities/dataset-update.entity";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
+import { DatasetUpdateMapper } from "@/infrastructure/db/mappers/dataset-update.mapper";
 
 export class PostgresDatasetUpdateRepository
   implements DatasetUpdateRepository
@@ -13,7 +17,7 @@ export class PostgresDatasetUpdateRepository
   }
 
   async create(
-    update: Omit<DatasetUpdate, 'id' | 'createdAt'>,
+    update: Omit<DatasetUpdate, "id" | "createdAt">,
     client?: TransactionClient,
   ): Promise<DatasetUpdate> {
     const dbClient = this.getClient(client);
@@ -42,7 +46,7 @@ export class PostgresDatasetUpdateRepository
     );
 
     if (!result.rows[0]) {
-      throw new Error('Failed to create dataset update');
+      throw new Error("Failed to create dataset update");
     }
     return DatasetUpdateMapper.toDomain(result.rows[0]);
   }
@@ -60,7 +64,7 @@ export class PostgresDatasetUpdateRepository
       bucket: string | null;
       event_key: string;
       created_at: Date;
-    }>('SELECT * FROM dataset_updates WHERE id = $1', [id]);
+    }>("SELECT * FROM dataset_updates WHERE id = $1", [id]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -82,7 +86,7 @@ export class PostgresDatasetUpdateRepository
       bucket: string | null;
       event_key: string;
       created_at: Date;
-    }>('SELECT * FROM dataset_updates WHERE event_key = $1', [eventKey]);
+    }>("SELECT * FROM dataset_updates WHERE event_key = $1", [eventKey]);
 
     if (result.rows.length === 0 || !result.rows[0]) {
       return null;
@@ -105,7 +109,7 @@ export class PostgresDatasetUpdateRepository
       event_key: string;
       created_at: Date;
     }>(
-      'SELECT * FROM dataset_updates WHERE dataset_id = $1 ORDER BY created_at DESC',
+      "SELECT * FROM dataset_updates WHERE dataset_id = $1 ORDER BY created_at DESC",
       [datasetId],
     );
 
@@ -140,4 +144,3 @@ export class PostgresDatasetUpdateRepository
     return DatasetUpdateMapper.toDomain(result.rows[0]);
   }
 }
-

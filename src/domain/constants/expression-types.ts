@@ -2,9 +2,9 @@
  * Tipos de expresiones de métricas
  */
 export const EXPRESSION_TYPES = {
-  SERIES_MATH: 'series_math',
-  WINDOW_OP: 'window_op',
-  COMPOSITE: 'composite',
+  SERIES_MATH: "series_math",
+  WINDOW_OP: "window_op",
+  COMPOSITE: "composite",
 } as const;
 
 export type ExpressionType =
@@ -14,10 +14,10 @@ export type ExpressionType =
  * Operaciones para series_math
  */
 export const SERIES_MATH_OPS = {
-  RATIO: 'ratio',
-  MULTIPLY: 'multiply',
-  SUBTRACT: 'subtract',
-  ADD: 'add',
+  RATIO: "ratio",
+  MULTIPLY: "multiply",
+  SUBTRACT: "subtract",
+  ADD: "add",
 } as const;
 
 export type SeriesMathOp =
@@ -27,12 +27,12 @@ export type SeriesMathOp =
  * Operaciones para window_op
  */
 export const WINDOW_OPS = {
-  SMA: 'sma', // Simple Moving Average
-  EMA: 'ema', // Exponential Moving Average
-  SUM: 'sum',
-  MAX: 'max',
-  MIN: 'min',
-  LAG: 'lag',
+  SMA: "sma", // Simple Moving Average
+  EMA: "ema", // Exponential Moving Average
+  SUM: "sum",
+  MAX: "max",
+  MIN: "min",
+  LAG: "lag",
 } as const;
 
 export type WindowOp = (typeof WINDOW_OPS)[keyof typeof WINDOW_OPS];
@@ -41,10 +41,10 @@ export type WindowOp = (typeof WINDOW_OPS)[keyof typeof WINDOW_OPS];
  * Operaciones para composite
  */
 export const COMPOSITE_OPS = {
-  SUM: 'sum',
-  AVG: 'avg',
-  MAX: 'max',
-  MIN: 'min',
+  SUM: "sum",
+  AVG: "avg",
+  MAX: "max",
+  MIN: "min",
 } as const;
 
 export type CompositeOp = (typeof COMPOSITE_OPS)[keyof typeof COMPOSITE_OPS];
@@ -90,4 +90,3 @@ export type ExpressionJson =
   | SeriesMathExpression
   | WindowOpExpression
   | CompositeExpression;
-

@@ -2,11 +2,11 @@ import {
   S3Client,
   GetObjectCommand,
   HeadObjectCommand,
-} from '@aws-sdk/client-s3';
-import { S3Client as IS3Client } from '@/domain/interfaces/s3-client.interface';
-import { Logger } from '@/domain/interfaces/logger.interface';
-import { LOG_EVENTS } from '@/domain/constants/log-events';
-import { AppConfig } from '@/infrastructure/config/app.config';
+} from "@aws-sdk/client-s3";
+import { S3Client as IS3Client } from "@/domain/interfaces/s3-client.interface";
+import { Logger } from "@/domain/interfaces/logger.interface";
+import { LOG_EVENTS } from "@/domain/constants/log-events";
+import { AppConfig } from "@/infrastructure/config/app.config";
 
 export class AwsS3Client implements IS3Client {
   private readonly s3Client: S3Client;
@@ -18,12 +18,13 @@ export class AwsS3Client implements IS3Client {
   ) {
     this.s3Client = new S3Client({
       region: config.aws.region,
-      credentials: config.aws.accessKeyId && config.aws.secretAccessKey
-        ? {
-            accessKeyId: config.aws.accessKeyId,
-            secretAccessKey: config.aws.secretAccessKey,
-          }
-        : undefined,
+      credentials:
+        config.aws.accessKeyId && config.aws.secretAccessKey
+          ? {
+              accessKeyId: config.aws.accessKeyId,
+              secretAccessKey: config.aws.secretAccessKey,
+            }
+          : undefined,
     });
     this.defaultBucket = config.s3.bucket;
   }
@@ -43,6 +44,7 @@ export class AwsS3Client implements IS3Client {
 
       // Convert stream to Buffer
       const chunks: Uint8Array[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for await (const chunk of response.Body as any) {
         chunks.push(chunk);
       }
@@ -50,7 +52,7 @@ export class AwsS3Client implements IS3Client {
 
       this.logger.info({
         event: LOG_EVENTS.S3_OBJECT_READ,
-        msg: 'Object read from S3',
+        msg: "Object read from S3",
         data: {
           bucket,
           key,
@@ -62,7 +64,7 @@ export class AwsS3Client implements IS3Client {
     } catch (error) {
       this.logger.error({
         event: LOG_EVENTS.S3_READ_ERROR,
-        msg: 'Failed to read object from S3',
+        msg: "Failed to read object from S3",
         data: {
           bucket,
           key,
@@ -82,14 +84,18 @@ export class AwsS3Client implements IS3Client {
 
       await this.s3Client.send(command);
       return true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+      if (
+        error.name === "NotFound" ||
+        error.$metadata?.httpStatusCode === 404
+      ) {
         return false;
       }
 
       this.logger.error({
         event: LOG_EVENTS.S3_READ_ERROR,
-        msg: 'Failed to check if object exists in S3',
+        msg: "Failed to check if object exists in S3",
         data: {
           bucket,
           key,
@@ -101,5 +107,4 @@ export class AwsS3Client implements IS3Client {
   }
 }
 
-export const S3_CLIENT_TOKEN = 'S3_CLIENT';
-
+export const S3_CLIENT_TOKEN = "S3_CLIENT";

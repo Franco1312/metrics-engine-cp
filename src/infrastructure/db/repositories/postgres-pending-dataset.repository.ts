@@ -1,7 +1,11 @@
-import { PendingDatasetRepository } from '@/domain/ports/pending-dataset.repository';
-import { PendingDataset } from '@/domain/entities/pending-dataset.entity';
-import { TransactionClient, DatabaseClient, QueryClient } from '@/domain/interfaces/database-client.interface';
-import { PendingDatasetMapper } from '@/infrastructure/db/mappers/pending-dataset.mapper';
+import { PendingDatasetRepository } from "@/domain/ports/pending-dataset.repository";
+import { PendingDataset } from "@/domain/entities/pending-dataset.entity";
+import {
+  TransactionClient,
+  DatabaseClient,
+  QueryClient,
+} from "@/domain/interfaces/database-client.interface";
+import { PendingDatasetMapper } from "@/infrastructure/db/mappers/pending-dataset.mapper";
 
 export class PostgresPendingDatasetRepository
   implements PendingDatasetRepository
@@ -13,7 +17,7 @@ export class PostgresPendingDatasetRepository
   }
 
   async create(
-    pending: Omit<PendingDataset, 'createdAt'>,
+    pending: Omit<PendingDataset, "createdAt">,
     client?: TransactionClient,
   ): Promise<PendingDataset> {
     const dbClient = this.getClient(client);
@@ -43,7 +47,7 @@ export class PostgresPendingDatasetRepository
     );
 
     if (!result.rows[0]) {
-      throw new Error('Failed to create pending dataset');
+      throw new Error("Failed to create pending dataset");
     }
     return PendingDatasetMapper.toDomain(result.rows[0]);
   }
@@ -61,10 +65,7 @@ export class PostgresPendingDatasetRepository
       received: boolean;
       received_at: Date | null;
       created_at: Date;
-    }>(
-      'SELECT * FROM metric_run_pending_datasets WHERE run_id = $1',
-      [runId],
-    );
+    }>("SELECT * FROM metric_run_pending_datasets WHERE run_id = $1", [runId]);
 
     return PendingDatasetMapper.toDomainList(result.rows);
   }
@@ -116,9 +117,7 @@ export class PostgresPendingDatasetRepository
   async update(
     runId: string,
     datasetId: string,
-    updates: Partial<
-      Omit<PendingDataset, 'runId' | 'datasetId' | 'createdAt'>
-    >,
+    updates: Partial<Omit<PendingDataset, "runId" | "datasetId" | "createdAt">>,
     client?: TransactionClient,
   ): Promise<PendingDataset> {
     const dbClient = this.getClient(client);
@@ -157,7 +156,7 @@ export class PostgresPendingDatasetRepository
 
     values.push(runId, datasetId);
     const query = `UPDATE metric_run_pending_datasets 
-                   SET ${setParts.join(', ')} 
+                   SET ${setParts.join(", ")} 
                    WHERE run_id = $${paramIndex} AND dataset_id = $${paramIndex + 1} 
                    RETURNING *`;
 
@@ -186,7 +185,7 @@ export class PostgresPendingDatasetRepository
   ): Promise<void> {
     const dbClient = this.getClient(client);
     await dbClient.query(
-      'DELETE FROM metric_run_pending_datasets WHERE run_id = $1 AND dataset_id = $2',
+      "DELETE FROM metric_run_pending_datasets WHERE run_id = $1 AND dataset_id = $2",
       [runId, datasetId],
     );
   }
@@ -209,4 +208,3 @@ export class PostgresPendingDatasetRepository
     return parseInt(result.rows[0].count, 10);
   }
 }
-
