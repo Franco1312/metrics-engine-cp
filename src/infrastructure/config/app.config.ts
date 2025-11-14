@@ -15,6 +15,12 @@ export interface AppConfig {
     topicArn: string;
     isFifo: boolean;
   };
+  sqs: {
+    projectionUpdateQueueUrl: string;
+    metricRunStartedQueueUrl: string;
+    metricRunHeartbeatQueueUrl: string;
+    metricRunCompletedQueueUrl: string;
+  };
   s3: {
     bucket: string;
   };
@@ -44,6 +50,16 @@ export const loadConfig = (): AppConfig => {
     sns: {
       topicArn: process.env.SNS_TOPIC_ARN ?? "",
       isFifo: process.env.SNS_TOPIC_IS_FIFO === "true",
+    },
+    sqs: {
+      projectionUpdateQueueUrl:
+        process.env.SQS_PROJECTION_UPDATE_QUEUE_URL ?? "",
+      metricRunStartedQueueUrl:
+        process.env.SQS_METRIC_RUN_STARTED_QUEUE_URL ?? "",
+      metricRunHeartbeatQueueUrl:
+        process.env.SQS_METRIC_RUN_HEARTBEAT_QUEUE_URL ?? "",
+      metricRunCompletedQueueUrl:
+        process.env.SQS_METRIC_RUN_COMPLETED_QUEUE_URL ?? "",
     },
     s3: {
       bucket: process.env.S3_BUCKET ?? "",
