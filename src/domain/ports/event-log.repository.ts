@@ -1,4 +1,4 @@
-import { TransactionClient } from '../interfaces/database-client.interface';
+import { TransactionClient } from '@/domain/interfaces/database-client.interface';
 
 export interface EventLog {
   eventKey: string;

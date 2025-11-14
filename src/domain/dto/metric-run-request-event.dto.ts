@@ -1,7 +1,7 @@
 import {
   ExpressionType,
   ExpressionJson,
-} from '../constants/expression-types';
+} from '@/domain/constants/expression-types';
 
 /**
  * Input para una métrica (datasetId y seriesCode)

@@ -1,6 +1,6 @@
-import { MetricRun } from '../entities/metric-run.entity';
-import { MetricRunStatus } from '../constants/metric-status';
-import { TransactionClient } from '../interfaces/database-client.interface';
+import { MetricRun } from '@/domain/entities/metric-run.entity';
+import { MetricRunStatus } from '@/domain/constants/metric-status';
+import { TransactionClient } from '@/domain/interfaces/database-client.interface';
 
 export interface MetricRunRepository {
   create(

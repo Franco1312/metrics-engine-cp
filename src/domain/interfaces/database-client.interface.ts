@@ -1,13 +1,19 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 
 /**
- * Cliente de transacción que permite ejecutar queries dentro de una transacción
+ * Interfaz común para ejecutar queries (usada por TransactionClient y DatabaseClient)
  */
-export interface TransactionClient {
+export interface QueryClient {
   query<T extends QueryResultRow = QueryResultRow>(
     text: string,
     params?: unknown[],
   ): Promise<QueryResult<T>>;
+}
+
+/**
+ * Cliente de transacción que permite ejecutar queries dentro de una transacción
+ */
+export interface TransactionClient extends QueryClient {
   release(): void;
 }
 

@@ -1,4 +1,4 @@
-import { ExpressionType, ExpressionJson } from '../constants/expression-types';
+import { ExpressionType, ExpressionJson } from '@/domain/constants/expression-types';
 
 export interface Metric {
   id: string;

@@ -1,4 +1,4 @@
-import { MetricRunRequestEvent } from '../dto/metric-run-request-event.dto';
+import { MetricRunRequestEvent } from '@/domain/dto/metric-run-request-event.dto';
 
 /**
  * Interfaz para publicar eventos a SNS

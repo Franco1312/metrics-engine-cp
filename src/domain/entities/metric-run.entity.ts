@@ -1,4 +1,4 @@
-import { MetricRunStatus } from '../constants/metric-status';
+import { MetricRunStatus } from '@/domain/constants/metric-status';
 
 export interface MetricRun {
   id: string;

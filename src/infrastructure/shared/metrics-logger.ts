@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { Logger } from '../../domain/interfaces/logger.interface';
+import { Logger } from '@/domain/interfaces/logger.interface';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 

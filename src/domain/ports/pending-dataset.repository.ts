@@ -1,5 +1,5 @@
-import { PendingDataset } from '../entities/pending-dataset.entity';
-import { TransactionClient } from '../interfaces/database-client.interface';
+import { PendingDataset } from '@/domain/entities/pending-dataset.entity';
+import { TransactionClient } from '@/domain/interfaces/database-client.interface';
 
 export interface PendingDatasetRepository {
   create(

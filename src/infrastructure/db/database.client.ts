@@ -1,9 +1,9 @@
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
-import { DatabaseClient, TransactionClient } from '../../domain/interfaces/database-client.interface';
-import { AppConfig } from '../config/app.config';
-import { Logger } from '../../domain/interfaces/logger.interface';
-import { defaultLogger } from '../shared/metrics-logger';
-import { LOG_EVENTS } from '../../domain/constants/log-events';
+import { DatabaseClient, TransactionClient } from '@/domain/interfaces/database-client.interface';
+import { AppConfig } from '@/infrastructure/config/app.config';
+import { Logger } from '@/domain/interfaces/logger.interface';
+import { defaultLogger } from '@/infrastructure/shared/metrics-logger';
+import { LOG_EVENTS } from '@/domain/constants/log-events';
 
 class TransactionClientImpl implements TransactionClient {
   constructor(private readonly client: PoolClient) {}
