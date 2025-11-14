@@ -60,12 +60,14 @@ export class MetricBuilder {
     op: (typeof SERIES_MATH_OPS)[keyof typeof SERIES_MATH_OPS],
     leftSeries: string,
     rightSeries: string,
+    scale?: number,
   ): this {
     this.data.expressionType = EXPRESSION_TYPES.SERIES_MATH;
     this.data.expressionJson = {
       op,
       left: { seriesCode: leftSeries },
       right: { seriesCode: rightSeries },
+      ...(scale !== undefined && { scale }),
     };
     return this;
   }
@@ -106,6 +108,26 @@ export class MetricBuilder {
         right: { seriesCode: "series2" },
       },
       right: { seriesCode: "series3" },
+    };
+    return this;
+  }
+
+  withNestedSeriesMathExpression(
+    outerOp: (typeof SERIES_MATH_OPS)[keyof typeof SERIES_MATH_OPS],
+    innerOp: (typeof SERIES_MATH_OPS)[keyof typeof SERIES_MATH_OPS],
+    leftSeries: string,
+    rightSeries: string,
+    rightSeries2: string,
+  ): this {
+    this.data.expressionType = EXPRESSION_TYPES.SERIES_MATH;
+    this.data.expressionJson = {
+      op: outerOp,
+      left: {
+        op: innerOp,
+        left: { seriesCode: leftSeries },
+        right: { seriesCode: rightSeries },
+      },
+      right: { seriesCode: rightSeries2 },
     };
     return this;
   }
