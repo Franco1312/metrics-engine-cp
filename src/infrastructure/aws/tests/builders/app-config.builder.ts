@@ -4,6 +4,7 @@ interface AppConfigData {
   database?: AppConfig["database"];
   aws?: AppConfig["aws"];
   sns?: AppConfig["sns"];
+  sqs?: AppConfig["sqs"];
   s3?: AppConfig["s3"];
   logging?: AppConfig["logging"];
   app?: AppConfig["app"];
@@ -26,6 +27,16 @@ export class AppConfigBuilder {
     sns: {
       topicArn: "arn:aws:sns:us-east-1:123456789012:test-topic",
       isFifo: false,
+    },
+    sqs: {
+      projectionUpdateQueueUrl:
+        "https://sqs.us-east-1.amazonaws.com/123456789/projection-update",
+      metricRunStartedQueueUrl:
+        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-started",
+      metricRunHeartbeatQueueUrl:
+        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-heartbeat",
+      metricRunCompletedQueueUrl:
+        "https://sqs.us-east-1.amazonaws.com/123456789/metric-run-completed",
     },
     s3: {
       bucket: "test-bucket",
@@ -82,6 +93,7 @@ export class AppConfigBuilder {
       database: this.data.database!,
       aws: this.data.aws!,
       sns: this.data.sns!,
+      sqs: this.data.sqs!,
       s3: this.data.s3!,
       logging: this.data.logging!,
       app: this.data.app!,

@@ -61,7 +61,7 @@ describe("createProjectionUpdateConsumer", () => {
 
     expect(Consumer.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        region: "us-east-1",
+        sqs: expect.any(Object),
         queueUrl: mockConfig.sqs.projectionUpdateQueueUrl,
         batchSize: 10,
         suppressFifoWarning: true,

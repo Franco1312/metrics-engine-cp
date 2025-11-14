@@ -1,4 +1,5 @@
 import { Message } from "@aws-sdk/client-sqs";
+import { SQSClient } from "@aws-sdk/client-sqs";
 import { Consumer } from "sqs-consumer";
 import { Logger } from "@/domain/interfaces/logger.interface";
 import { AppConfig } from "@/infrastructure/config/app.config";
@@ -25,9 +26,9 @@ export function createSqsConsumer<T>(
 ): Consumer {
   const { config, sqsConfig, parseMessage, handler, logger } = options;
 
-  return Consumer.create({
+  // Crear cliente SQS con credenciales si están disponibles
+  const sqsClient = new SQSClient({
     region: config.aws.region,
-    queueUrl: sqsConfig.queueUrl,
     credentials:
       config.aws.accessKeyId && config.aws.secretAccessKey
         ? {
@@ -35,6 +36,11 @@ export function createSqsConsumer<T>(
             secretAccessKey: config.aws.secretAccessKey,
           }
         : undefined,
+  });
+
+  return Consumer.create({
+    sqs: sqsClient,
+    queueUrl: sqsConfig.queueUrl,
     suppressFifoWarning: true,
     batchSize: 10,
     handleMessageBatch: async (messages: Message[]) => {
