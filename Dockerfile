@@ -13,7 +13,9 @@ RUN npm ci && npm cache clean --force
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN npm run build || (echo "Build failed!" && exit 1)
+RUN ls -la dist/ || (echo "dist directory not found!" && exit 1)
+RUN test -f dist/main.js || (echo "dist/main.js not found!" && exit 1)
 
 # Production stage
 FROM node:18-alpine AS production
@@ -32,6 +34,9 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 # Copy built application from builder
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+
+# Verify the file exists
+RUN test -f dist/main.js || (echo "ERROR: dist/main.js not found after copy!" && ls -la dist/ && exit 1)
 
 # Switch to non-root user
 USER nestjs
