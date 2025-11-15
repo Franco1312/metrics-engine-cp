@@ -86,19 +86,19 @@
       "secrets": [
         {
           "name": "DB_HOST",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:host::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds-wCS5cv:host::"
         },
         {
           "name": "DB_PORT",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:port::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds-wCS5cv:port::"
         },
         {
           "name": "DB_USER",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:username::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds-wCS5cv:username::"
         },
         {
           "name": "DB_PASSWORD",
-          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:password::"
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds-wCS5cv:password::"
         }
       ],
       "logConfiguration": {
