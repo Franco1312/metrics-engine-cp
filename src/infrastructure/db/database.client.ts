@@ -38,7 +38,7 @@ export class PostgresDatabaseClient implements DatabaseClient {
   }
 
   private createPool(appConfig: AppConfig): Pool {
-    const connectionConfig = {
+    const connectionConfig: any = {
       host: process.env.DB_HOST || appConfig.database.host,
       port: parseInt(
         process.env.DB_PORT || String(appConfig.database.port),
@@ -50,6 +50,9 @@ export class PostgresDatabaseClient implements DatabaseClient {
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
+      ssl: {
+        rejectUnauthorized: false, // RDS uses AWS-managed certificates
+      },
     };
 
     return new Pool(connectionConfig);
