@@ -1,0 +1,35 @@
+{
+  "serviceName": "metrics-engine-cp-service",
+  "cluster": "metrics-engine-cluster",
+  "taskDefinition": "metrics-engine-cp",
+  "desiredCount": 2,
+  "launchType": "FARGATE",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": [
+        "subnet-xxxxxxxxx",
+        "subnet-yyyyyyyyy"
+      ],
+      "securityGroups": [
+        "sg-xxxxxxxxx"
+      ],
+      "assignPublicIp": "DISABLED"
+    }
+  },
+  "serviceRegistries": [],
+  "deploymentConfiguration": {
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 100,
+    "deploymentCircuitBreaker": {
+      "enable": true,
+      "rollback": true
+    }
+  },
+  "healthCheckGracePeriodSeconds": 60,
+  "enableExecuteCommand": false,
+  "enableLogging": true,
+  "platformVersion": "LATEST",
+  "propagateTags": "SERVICE"
+}
+
+
