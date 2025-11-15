@@ -32,7 +32,22 @@ function getDatabaseConfig(): DatabaseConfig {
 
 async function cleanAndSeed(): Promise<void> {
   const config = getDatabaseConfig();
-  const pool = new Pool(config);
+  const isRDS =
+    config.host.includes(".rds.amazonaws.com") || config.host.includes(".rds.");
+
+  const poolConfig: DatabaseConfig & { ssl?: { rejectUnauthorized: boolean } } =
+    {
+      ...config,
+    };
+
+  // Enable SSL for RDS connections
+  if (isRDS) {
+    poolConfig.ssl = {
+      rejectUnauthorized: false,
+    };
+  }
+
+  const pool = new Pool(poolConfig);
 
   try {
     console.log("📦 Conectando a la base de datos...");

@@ -22,6 +22,7 @@
     "test:e2e:teardown": "docker-compose -f docker-compose.test.yml down",
     "test:e2e:full": "npm run test:e2e:setup && npm run test:e2e && npm run test:e2e:teardown",
     "migrate:clean-seed": "ts-node -r tsconfig-paths/register scripts/clean-and-seed.ts",
+    "migrate:setup": "ts-node -r tsconfig-paths/register scripts/setup-database.ts",
     "prepare": "husky"
   },
   "dependencies": {
