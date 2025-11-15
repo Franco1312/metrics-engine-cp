@@ -38,12 +38,21 @@ export function createSqsConsumer<T>(
         : undefined,
   });
 
-  return Consumer.create({
+  const consumer = Consumer.create({
     sqs: sqsClient,
     queueUrl: sqsConfig.queueUrl,
     suppressFifoWarning: true,
     batchSize: 10,
     handleMessageBatch: async (messages: Message[]) => {
+      logger?.info({
+        event: `${sqsConfig.eventName}_BATCH_RECEIVED`,
+        msg: `Received batch of ${messages.length} messages from queue`,
+        data: {
+          queueUrl: sqsConfig.queueUrl,
+          messageCount: messages.length,
+        },
+      });
+
       for (const message of messages) {
         try {
           const event = parseMessage(message);
@@ -52,7 +61,11 @@ export function createSqsConsumer<T>(
           logger?.error({
             event: `${sqsConfig.eventName}_ERROR`,
             msg: `${sqsConfig.eventName} message processed with errors`,
-            data: { message: message?.Body },
+            data: {
+              messageId: message.MessageId,
+              receiptHandle: message.ReceiptHandle,
+              body: message.Body?.substring(0, 1000), // Primeros 1000 chars
+            },
             err: error,
           });
           throw error;
@@ -61,6 +74,28 @@ export function createSqsConsumer<T>(
       return messages;
     },
   });
+
+  // Agregar event listeners para debugging
+  consumer.on("started", () => {
+    logger?.info({
+      event: `${sqsConfig.eventName}_CONSUMER_STARTED`,
+      msg: `Consumer started and polling queue`,
+      data: {
+        queueUrl: sqsConfig.queueUrl,
+      },
+    });
+  });
+
+  consumer.on("stopped", () => {
+    logger?.info({
+      event: `${sqsConfig.eventName}_CONSUMER_STOPPED`,
+      msg: `Consumer stopped`,
+      data: {
+        queueUrl: sqsConfig.queueUrl,
+      },
+    });
+  });
+  return consumer;
 }
 
 /**

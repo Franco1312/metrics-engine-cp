@@ -25,41 +25,54 @@ function parseMetricRunCompletedMessage(
     const body = JSON.parse(message.Body);
 
     // Si el mensaje viene de SNS, el evento está en body.Message
+    // SNS envía el mensaje con "Message" (mayúscula) cuando viene a través de SQS
     const eventData = body.Message ? JSON.parse(body.Message) : body;
 
-    if (eventData.type !== "metric_run_completed") {
+    // El data plane envía snake_case (event_type, run_id, metric_code)
+    // pero también soportamos camelCase (type, runId, metricCode)
+    const eventType = eventData.type || eventData.event_type;
+    const runId = eventData.runId || eventData.run_id;
+    const metricCode = eventData.metricCode || eventData.metric_code;
+    const status = eventData.status;
+    const versionTs = eventData.versionTs || eventData.version_ts;
+    const outputManifest =
+      eventData.outputManifest || eventData.output_manifest;
+    const rowCount = eventData.rowCount || eventData.row_count;
+    const error = eventData.error;
+
+    if (eventType !== "metric_run_completed") {
       throw new Error(
-        `Invalid event type: expected 'metric_run_completed', got '${eventData.type}'`,
+        `Invalid event type: expected 'metric_run_completed', got '${eventType}'`,
       );
     }
 
-    if (!eventData.runId) {
-      throw new Error("Missing required field: runId");
+    if (!runId) {
+      throw new Error("Missing required field: runId/run_id");
     }
 
-    if (!eventData.metricCode) {
-      throw new Error("Missing required field: metricCode");
+    if (!metricCode) {
+      throw new Error("Missing required field: metricCode/metric_code");
     }
 
-    if (!eventData.status) {
+    if (!status) {
       throw new Error("Missing required field: status");
     }
 
-    if (eventData.status !== "SUCCESS" && eventData.status !== "FAILURE") {
+    if (status !== "SUCCESS" && status !== "FAILURE") {
       throw new Error(
-        `Invalid status: expected 'SUCCESS' or 'FAILURE', got '${eventData.status}'`,
+        `Invalid status: expected 'SUCCESS' or 'FAILURE', got '${status}'`,
       );
     }
 
     return {
       type: "metric_run_completed",
-      runId: eventData.runId,
-      metricCode: eventData.metricCode,
-      status: eventData.status,
-      versionTs: eventData.versionTs,
-      outputManifest: eventData.outputManifest,
-      rowCount: eventData.rowCount,
-      error: eventData.error,
+      runId,
+      metricCode,
+      status,
+      versionTs,
+      outputManifest,
+      rowCount,
+      error,
     };
   } catch (error) {
     if (error instanceof SyntaxError) {

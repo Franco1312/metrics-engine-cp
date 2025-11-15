@@ -313,6 +313,9 @@ export class MetricRunOrchestratorService {
     inputs: MetricRunRequestEvent["inputs"],
     catalog: MetricRunRequestEvent["catalog"],
   ): MetricRunRequestEvent {
+    // Validar que la expresión no tenga operaciones window_op anidadas sin window
+    this.validateWindowOpsInExpression(metric.expressionJson, metric.code);
+
     return {
       type: "metric_run_requested",
       runId: run.id,
@@ -327,5 +330,67 @@ export class MetricRunOrchestratorService {
       messageGroupId: metric.code,
       messageDeduplicationId: run.id,
     };
+  }
+
+  /**
+   * Valida que todas las operaciones window_op (lag, sma, etc.) en la expresión tengan window definido
+   */
+  private validateWindowOpsInExpression(
+    expression: any,
+    metricCode: string,
+    path: string = "expressionJson",
+  ): void {
+    if (!expression || typeof expression !== "object") {
+      return;
+    }
+
+    // Si tiene 'op' y 'series' y 'window', es una window_op
+    if ("op" in expression && "series" in expression) {
+      if (!("window" in expression) || expression.window == null) {
+        throw new Error(
+          `Metric ${metricCode}: window_op operation at '${path}' is missing 'window' field or it is null. ` +
+            `All window operations (lag, sma, ema, etc.) must have a valid window value (integer >= 1).`,
+        );
+      }
+
+      if (typeof expression.window !== "number" || expression.window < 1) {
+        throw new Error(
+          `Metric ${metricCode}: window_op operation at '${path}' has invalid window value: ${expression.window}. ` +
+            `Window must be a positive integer >= 1.`,
+        );
+      }
+    }
+
+    // Validar recursivamente en operandos anidados
+    if ("left" in expression) {
+      this.validateWindowOpsInExpression(
+        expression.left,
+        metricCode,
+        `${path}.left`,
+      );
+    }
+    if ("right" in expression) {
+      this.validateWindowOpsInExpression(
+        expression.right,
+        metricCode,
+        `${path}.right`,
+      );
+    }
+    if ("series" in expression && typeof expression.series === "object") {
+      this.validateWindowOpsInExpression(
+        expression.series,
+        metricCode,
+        `${path}.series`,
+      );
+    }
+    if ("operands" in expression && Array.isArray(expression.operands)) {
+      expression.operands.forEach((operand: any, index: number) => {
+        this.validateWindowOpsInExpression(
+          operand,
+          metricCode,
+          `${path}.operands[${index}]`,
+        );
+      });
+    }
   }
 }

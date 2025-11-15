@@ -64,15 +64,9 @@ export const loadConfig = (): AppConfig => {
     },
     sns: {
       metricRunRequest: {
-        topic:
-          process.env.SNS_METRIC_RUN_REQUEST_TOPIC ??
-          process.env.SNS_TOPIC_ARN ??
-          "",
-        enabled: process.env.SNS_METRIC_RUN_REQUEST_ENABLED === "true",
-        region:
-          process.env.SNS_METRIC_RUN_REQUEST_REGION ??
-          process.env.AWS_REGION ??
-          "us-east-1",
+        topic: "arn:aws:sns:us-east-1:706341500093:metrics-run-request.fifo",
+        enabled: true,
+        region: "us-east-1",
       },
     },
     sqs: {
@@ -93,7 +87,7 @@ export const loadConfig = (): AppConfig => {
       },
       metricRunCompleted: {
         queueUrl:
-          "https://sqs.us-east-1.amazonaws.com/706341500093/metric-run-completed-consumer.fifo",
+          "https://sqs.us-east-1.amazonaws.com/706341500093/metric-run-completed.fifo",
         enabled: true,
       },
     },
