@@ -31,24 +31,8 @@
           "value": "info"
         },
         {
-          "name": "DB_HOST",
-          "value": "metrics-engine-cluster.cluster-c2x8swokk2bn.us-east-1.rds.amazonaws.com"
-        },
-        {
-          "name": "DB_PORT",
-          "value": "5432"
-        },
-        {
           "name": "DB_NAME",
           "value": "metrics_engine_cp"
-        },
-        {
-          "name": "DB_USER",
-          "value": "metrics-engine-cp"
-        },
-        {
-          "name": "DB_PASSWORD",
-          "value": "metrics-engine-cp"
         },
         {
           "name": "AWS_REGION",
@@ -97,6 +81,24 @@
         {
           "name": "S3_BUCKET",
           "value": "ingestor-datasets"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_HOST",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:host::"
+        },
+        {
+          "name": "DB_PORT",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:port::"
+        },
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:username::"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-1:706341500093:secret:metrics_engine_db_creds:password::"
         }
       ],
       "logConfiguration": {
