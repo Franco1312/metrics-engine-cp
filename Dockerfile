@@ -15,7 +15,7 @@ COPY . .
 # Build the application
 RUN npm run build || (echo "Build failed!" && exit 1)
 RUN ls -la dist/ || (echo "dist directory not found!" && exit 1)
-RUN test -f dist/main.js || (echo "dist/main.js not found!" && exit 1)
+RUN test -f dist/src/main.js || (echo "dist/src/main.js not found!" && exit 1)
 
 # Production stage
 FROM node:18-alpine AS production
@@ -36,7 +36,7 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 # Verify the file exists
-RUN test -f dist/main.js || (echo "ERROR: dist/main.js not found after copy!" && ls -la dist/ && exit 1)
+RUN test -f dist/src/main.js || (echo "ERROR: dist/src/main.js not found after copy!" && ls -la dist/ && exit 1)
 
 # Switch to non-root user
 USER nestjs
@@ -49,5 +49,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
 
